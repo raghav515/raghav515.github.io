@@ -1,0 +1,126 @@
+---
+import '../styles/global.css';
+interface Props {
+  title: string;
+  description?: string;
+}
+const {
+  title,
+  description = 'Raghavendra Pandurang Jadhav — Mechanical & Robotics Engineer. NIT Karnataka, Surathkal. Competition robotics, custom PCBs, control systems, and large-scale infrastructure engineering.',
+} = Astro.props;
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Netlify Identity: powers CMS login/invite redirects -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js" is:inline></script>
+  </head>
+  <body>
+    <Nav />
+    <main id="top">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // ---- scroll reveal ----
+      const els = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.add('in');
+                io.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+        );
+        els.forEach((el) => io.observe(el));
+      } else {
+        els.forEach((el) => el.classList.add('in'));
+      }
+
+      // ---- telemetry sim (homepage only) ----
+      const reduce =
+        window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const bot = document.getElementById('bot');
+      const heading = document.getElementById('heading');
+      const posx = document.getElementById('posx');
+      const posy = document.getElementById('posy');
+      const theta = document.getElementById('theta');
+      if (bot && posx && posy && theta) {
+        const pts = [[50, 50],[74, 30],[30, 26],[22, 68],[68, 72],[50, 50]];
+        let i = 0;
+        const place = (p) => {
+          bot.style.left = p[0] + '%';
+          bot.style.top = p[1] + '%';
+          const wx = (((p[0] - 50) / 50) * 1.5).toFixed(2);
+          const wy = (((50 - p[1]) / 50) * 1.5).toFixed(2);
+          posx.textContent = (Number(wx) >= 0 ? '+' : '') + wx;
+          posy.textContent = (Number(wy) >= 0 ? '+' : '') + wy;
+        };
+        place(pts[0]);
+        if (!reduce) {
+          setInterval(() => {
+            const from = pts[i];
+            const to = pts[(i + 1) % pts.length];
+            const ang = Math.round(((Math.atan2(to[1] - from[1], to[0] - from[0]) * 180) / Math.PI + 360) % 360);
+            theta.textContent = String(ang).padStart(3, '0');
+            if (heading) heading.style.transform = 'rotate(' + ang + 'deg)';
+            i = (i + 1) % pts.length;
+            place(pts[i]);
+          }, 1600);
+        } else {
+          theta.textContent = '045';
+          if (heading) heading.style.transform = 'rotate(45deg)';
+        }
+      }
+
+      // ---- gallery lightbox ----
+      document.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLImageElement)) return;
+        if (!t.closest('.gallery-grid')) return;
+        const o = document.createElement('div');
+        o.className = 'lb-overlay';
+        const big = document.createElement('img');
+        big.src = t.src;
+        big.alt = t.alt || '';
+        o.appendChild(big);
+        o.addEventListener('click', () => o.remove());
+        document.addEventListener('keydown', function esc(ev) {
+          if (ev.key === 'Escape') { o.remove(); document.removeEventListener('keydown', esc); }
+        });
+        document.body.appendChild(o);
+      });
+    </script>
+
+    <script is:inline>
+      // Redirect to /admin/ after Netlify Identity login
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on('init', (user) => {
+          if (!user) {
+            window.netlifyIdentity.on('login', () => {
+              document.location.href = '/admin/';
+            });
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

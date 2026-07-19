@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const fmt = (dt) => dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: '2-digit' });
+---
+<Base title="Writing — Raghavendra Jadhav">
+  <div class="wrap">
+    <header class="page-hero">
+      <a class="back-link" href="/"><span class="a">←</span> Home</a>
+      <span class="eyebrow kicker">Writing</span>
+      <h1>Notes &amp; Tutorials</h1>
+      <p class="sub">Field notes on robotics, mechanical design, and the messy work of making hardware behave — write-ups, tutorials, and lessons from the workshop.</p>
+    </header>
+    <section style="padding-top:4px">
+      {posts.length ? (
+        <div class="index-list">
+          {posts.map((p) => (
+            <a class="index-row reveal" href={`/blog/${p.id}`}>
+              <div class="rd">{fmt(p.data.date)}</div>
+              <div>
+                <div class="rt">{p.data.title}</div>
+                {p.data.excerpt && <div class="re">{p.data.excerpt}</div>}
+                {p.data.tags && p.data.tags.length > 0 && (
+                  <div class="rtags">{p.data.tags.map((t) => <span class="tag">{t}</span>)}</div>
+                )}
+              </div>
+              <div class="arw">↗</div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="empty">No posts yet. Publish your first tutorial in <b>/admin</b>.</div>
+      )}
+    </section>
+  </div>
+</Base>

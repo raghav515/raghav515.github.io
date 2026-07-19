@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+const all = (await getCollection('projects')).sort(
+  (a, b) => (b.data.order - a.data.order) ||
+    ((b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
+);
+---
+<Base title="Work — Raghavendra Jadhav">
+  <div class="wrap">
+    <header class="page-hero">
+      <a class="back-link" href="/"><span class="a">←</span> Home</a>
+      <span class="eyebrow kicker">Projects</span>
+      <h1>Selected Work</h1>
+      <p class="sub">Competition robots and engineering systems, built end to end — mechanical design, custom electronics, control, and manufacturing. Open any project for the full write-up and gallery.</p>
+    </header>
+    <section style="padding-top:0">
+      {all.length ? (
+        <div class="proj-grid reveal">
+          {all.map((p, idx) => (
+            <ProjectCard
+              href={`/projects/${p.id}`}
+              index={`P.${String(all.length - idx).padStart(2, '0')}`}
+              title={p.data.title}
+              summary={p.data.summary}
+              period={p.data.period}
+              team={p.data.team}
+              role={p.data.role}
+              cover={p.data.cover}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="empty">No projects yet. Add your first one in <b>/admin</b>.</div>
+      )}
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,93 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Uncomment the next line to test the CMS locally with: npx decap-server
+local_backend: true
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+publish_mode: simple
+
+collections:
+  # ----------------- PROJECTS -----------------
+  - name: "projects"
+    label: "Projects"
+    label_singular: "Project"
+    folder: "src/content/projects"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Venue / Event", name: "venue", widget: "string", required: false, hint: "e.g. ABU Robocon 2025 · NITK Surathkal" }
+      - { label: "Period", name: "period", widget: "string", required: false, hint: "e.g. 2024–2025" }
+      - { label: "Role", name: "role", widget: "string", required: false }
+      - { label: "Team size", name: "team", widget: "string", required: false }
+      - { label: "Summary (shown on cards)", name: "summary", widget: "text" }
+      - { label: "Tags", name: "tags", widget: "list", required: false, hint: "First tag is highlighted" }
+      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false }
+      - label: "Gallery"
+        name: "gallery"
+        widget: "list"
+        required: false
+        summary: "{{fields.caption}}"
+        fields:
+          - { label: "Image", name: "src", widget: "image", choose_url: false }
+          - { label: "Caption", name: "caption", widget: "string", required: false }
+      - { label: "Feature on homepage", name: "featured", widget: "boolean", default: true }
+      - { label: "Sort order (higher = newer/first)", name: "order", widget: "number", default: 0, value_type: "int" }
+      - { label: "Date", name: "date", widget: "datetime", required: false, date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Full write-up", name: "body", widget: "markdown" }
+
+  # ----------------- WRITING (BLOG) -----------------
+  - name: "blog"
+    label: "Writing"
+    label_singular: "Post"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # ----------------- JOURNEY -----------------
+  - name: "journey"
+    label: "Journey"
+    label_singular: "Entry"
+    folder: "src/content/journey"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Period label", name: "period", widget: "string", required: false, hint: "e.g. 2023 (shown instead of the date)" }
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # ----------------- SITE PROFILE -----------------
+  - name: "settings"
+    label: "Site"
+    files:
+      - name: "profile"
+        label: "Profile & Contact"
+        file: "src/data/site.json"
+        fields:
+          - { label: "Portrait photo", name: "portrait", widget: "image", required: false, choose_url: false, hint: "Your homepage headshot. Portrait, 600px+." }
+          - { label: "Resume (PDF)", name: "resume", widget: "file", required: false, choose_url: false, hint: "Powers the hero's download button." }
+          - { label: "Hero tagline", name: "heroTagline", widget: "text", required: false }
+          - { label: "Availability line", name: "availability", widget: "string", required: false, hint: "Shown next to the live dot in the hero" }
+          - { label: "Email", name: "email", widget: "string" }
+          - { label: "Phone", name: "phone", widget: "string", required: false }
+          - { label: "GitHub URL", name: "github", widget: "string", required: false }
+          - { label: "LinkedIn URL", name: "linkedin", widget: "string", required: false }

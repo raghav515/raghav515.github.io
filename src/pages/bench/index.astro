@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import PathPlanner from '../../components/PathPlanner.astro';
+import IKVisualizer from '../../components/IKVisualizer.astro';
+import PIDVisualizer from '../../components/PIDVisualizer.astro';
+---
+<Base
+  title="Test Bench — Raghavendra Jadhav"
+  description="Interactive robotics simulations — path planning search algorithms, a two-link inverse kinematics solver, and a PID control loop, built to play with, not just read about."
+>
+  <div class="wrap">
+    <header class="page-hero">
+      <a class="back-link" href="/"><span class="a">←</span> Home</a>
+      <span class="eyebrow kicker">Interactive</span>
+      <h1>Test Bench</h1>
+      <p class="sub">
+        Robotics concepts you can drive, not just read about. Paint a maze and race search
+        algorithms through it, drag a robot arm around and watch it solve its own joint angles,
+        or tune a PID loop until it stops overshooting. Nothing here is production code — just
+        a bench to try things on.
+      </p>
+    </header>
+  </div>
+
+  <PathPlanner secNo="01" />
+  <IKVisualizer secNo="02" />
+  <PIDVisualizer secNo="03" />
+</Base>

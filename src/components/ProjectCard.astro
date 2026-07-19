@@ -1,0 +1,30 @@
+---
+interface Props {
+  href: string;
+  index: string;
+  title: string;
+  summary: string;
+  period?: string;
+  team?: string;
+  role?: string;
+  cover?: string;
+}
+const { href, index, title, summary, period, team, role, cover } = Astro.props;
+---
+<a class="proj-card" href={href}>
+  <div class="thumb">
+    {cover
+      ? <img src={cover} alt={title} loading="lazy" />
+      : <div class="noimg"><span>{index}</span></div>}
+  </div>
+  <div class="pc-body">
+    <span class="pc-idx">{index}</span>
+    <h3>{title}</h3>
+    <p class="pc-sum">{summary}</p>
+    <div class="pc-foot">
+      {period && <span><b>Period</b> {period}</span>}
+      {team && <span><b>Team</b> {team}</span>}
+      {role && <span><b>Role</b> {role}</span>}
+    </div>
+  </div>
+</a>

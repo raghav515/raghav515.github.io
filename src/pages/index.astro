@@ -1,0 +1,341 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import site from '../data/site.json';
+
+const all = (await getCollection('projects')).sort(
+  (a, b) => (b.data.order - a.data.order) ||
+    ((b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
+);
+const featured = all.filter((p) => p.data.featured);
+const show = (featured.length ? featured : all).slice(0, 5);
+---
+<Base title="Raghavendra Jadhav — Mechanical & Robotics Engineer">
+  <div class="wrap">
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow">Mechanical &amp; Robotics Engineer</span>
+          <h1>Raghavendra<br /><span class="last">Jadhav</span></h1>
+          <p class="lede" set:html={site.heroTagline}></p>
+          <div class="hero-meta">
+            <span><i class="dot live"></i> {site.availability}</span>
+            <span>Navi Mumbai, India</span>
+            <span>NIT Karnataka, Surathkal</span>
+          </div>
+          <div class="cta-row">
+            {site.resume ? (
+              <a class="btn primary" href={site.resume} download target="_blank" rel="noopener">Download résumé <span class="arw">↓</span></a>
+            ) : (
+              <a class="btn primary" href="/admin/" title="Add your résumé via the CMS">Add résumé <span class="arw">↗</span></a>
+            )}
+            <a class="btn" href="#contact">Get in touch</a>
+          </div>
+        </div>
+
+        <div class="hero-right reveal">
+          <figure class={site.portrait ? 'portrait cv' : 'portrait'}>
+            <span class="tick-bl"></span><span class="tick-br"></span>
+            <div class="frame">
+              {site.portrait ? (
+                <Fragment>
+                  <img class="pf" src={site.portrait} alt="Raghavendra Jadhav" />
+                  <canvas class="dots" data-src={site.portrait} aria-hidden="true"></canvas>
+                  <div class="cv-scan" aria-hidden="true"></div>
+                  <div class="cv-hud" aria-hidden="true"><span class="cv-tag">FACE // SCAN</span><span class="cv-hint">HOVER</span></div>
+                </Fragment>
+              ) : (
+                <div class="ph">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"></circle><path d="M4.5 20.5a7.5 7.5 0 0115 0"></path></svg>
+                  <div class="ph-t">ADD PORTRAIT</div>
+                  <div class="ph-s">CMS · Site → Profile</div>
+                </div>
+              )}
+            </div>
+            <figcaption class="cap"><span>FIG.01</span><span><b>R. Jadhav</b> · Mech/Robotics</span></figcaption>
+          </figure>
+
+          <aside class="instrument" aria-hidden="true">
+            <span class="tick-bl"></span><span class="tick-br"></span>
+            <div class="inst-head"><span>ODOMETRY · SIM</span><span><b id="statusTxt">ONLINE</b></span></div>
+            <div class="scope">
+              <div class="cross-h"></div><div class="cross-v"></div>
+              <div class="bot" id="bot"><div class="heading" id="heading"></div></div>
+            </div>
+            <div class="readout">
+              <div class="cell"><div class="k">POS X</div><div class="v"><span id="posx">0.00</span><span class="u">m</span></div></div>
+              <div class="cell"><div class="k">POS Y</div><div class="v"><span id="posy">0.00</span><span class="u">m</span></div></div>
+              <div class="cell"><div class="k">θ HEAD</div><div class="v"><span id="theta">000</span><span class="u">°</span></div></div>
+            </div>
+          </aside>
+
+          <a class="inst-link" href="/bench">Try the interactive Test Bench <span class="arw">↗</span></a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="sec-head reveal">
+        <span class="sec-no">01</span>
+        <h2 class="sec-title">Profile</h2>
+        <span class="sec-rule"></span>
+      </div>
+      <div class="about-grid">
+        <div class="about-body reveal">
+          <p>I hold a <strong>B.Tech in Mechanical Engineering</strong> from NIT Karnataka, Surathkal, paired with a minor in <strong>Electronics &amp; Communication</strong> — a combination that lets me move fluently between a robot's structure, its custom electronics, and its control loops.</p>
+          <p>Over four years I led teams of up to <strong>40 people</strong> to take competition robots from a blank page to the arena: four-wheel holonomic drives, flywheel launchers, combat weapon systems, and the custom PCBs and encoder–IMU odometry that make them autonomous. Two of those efforts became <strong>filed patents</strong>.</p>
+          <p>Today I apply that same end-to-end discipline to large-scale infrastructure as a site engineer at BPCL, and I'm working toward <strong>graduate research in robotics</strong>.</p>
+        </div>
+        <div class="spec-block reveal">
+          <div class="spec-row"><div class="sk">Degree</div><div class="sv">B.Tech, Mechanical Engineering<small>Minor · Electronics &amp; Communication</small></div></div>
+          <div class="spec-row"><div class="sk">Institute</div><div class="sv">NIT Karnataka, Surathkal<small>Dec 2021 — May 2025</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SELECTED WORK (from CMS) -->
+    <section id="work">
+      <div class="sec-head reveal">
+        <span class="sec-no">02</span>
+        <h2 class="sec-title">Selected Work</h2>
+        <span class="sec-rule"></span>
+      </div>
+      <div class="projects">
+        {show.map((p, idx) => (
+          <a class="proj reveal" href={`/projects/${p.id}`}>
+            <div class="proj-top">
+              <div>
+                <span class="proj-index">P.{String(show.length - idx).padStart(2, '0')}</span>
+                <h3>{p.data.title}</h3>
+                {p.data.venue && <span class="venue">{p.data.venue}</span>}
+              </div>
+              <div class="titleblock">
+                {p.data.period && <div class="tb"><div class="tk">Period</div><div class="tv">{p.data.period}</div></div>}
+                {p.data.team && <div class="tb"><div class="tk">Team</div><div class="tv">{p.data.team}</div></div>}
+                {p.data.role && <div class="tb"><div class="tk">Role</div><div class="tv">{p.data.role}</div></div>}
+              </div>
+            </div>
+            <div class="proj-body">
+              <p>{p.data.summary}</p>
+              <div class="tags">
+                {p.data.tags.slice(0, 5).map((t, ti) => <span class={ti === 0 ? 'tag hi' : 'tag'}>{t}</span>)}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+      <div class="view-all reveal">
+        <a class="btn" href="/projects">All projects <span class="arw">↗</span></a>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience">
+      <div class="sec-head reveal">
+        <span class="sec-no">03</span>
+        <h2 class="sec-title">Experience</h2>
+        <span class="sec-rule"></span>
+      </div>
+      <div class="exp">
+        <div class="exp-item reveal">
+          <div class="exp-when">Jun 2025 — Present<div class="st"><i class="dot live"></i>Current</div></div>
+          <div class="exp-role">
+            <h3>Assistant Executive · Site Engineer</h3>
+            <div class="org">Bharat Petroleum Corporation Ltd · Navi Mumbai</div>
+            <ul>
+              <li>Coordinate mechanical installation, equipment integration, and construction for large-scale LPG infrastructure, ensuring compliance with <b>OISD standards</b> and project schedules.</li>
+              <li>Manage design, statutory approvals, and multidisciplinary coordination for <b>four railway overbridges</b> across consultants, contractors, and Central Railways.</li>
+              <li>Execute equipment installation, hydrostatic and pneumatic testing, instrumentation hot-loop testing, and pre-commissioning for <b>cryogenic LPG facilities</b>.</li>
+              <li>Contributing to a terminal expansion that lifts handling capacity from <b>1.2 to 3.0 MMTPA</b>.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp-item reveal">
+          <div class="exp-when">May 2024 — Jul 2024</div>
+          <div class="exp-role">
+            <h3>Manufacturing / Industrial Engineering Intern</h3>
+            <div class="org">Bajaj Auto Limited · Pune</div>
+            <ul>
+              <li>Analysed assembly-line workflow and task sequencing across four motorcycle models to locate bottlenecks.</li>
+              <li>Performed time studies and line balancing, redistributing 9.25 minutes of work content across conveyor systems.</li>
+              <li>Increased throughput from <b>360 to 546 vehicles per shift — a 51% improvement</b> — through task reallocation and workload balancing.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills">
+      <div class="sec-head reveal">
+        <span class="sec-no">04</span>
+        <h2 class="sec-title">Toolkit</h2>
+        <span class="sec-rule"></span>
+      </div>
+      <div class="skills-grid reveal">
+        <div class="skill-cat">
+          <div class="ch"><span class="cno">A</span><span class="cn">Design &amp; Simulation</span></div>
+          <div class="list"><span>SolidWorks</span><span>Fusion 360</span><span>AutoCAD</span><span>Ansys</span><span>Ultimaker Cura</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="ch"><span class="cno">B</span><span class="cn">Electronics &amp; PCB</span></div>
+          <div class="list"><span>Altium</span><span>Eagle</span><span>PCB manufacturing</span><span>Raspberry Pi</span><span>Arduino</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="ch"><span class="cno">C</span><span class="cn">Programming &amp; Control</span></div>
+          <div class="list"><span>Python</span><span>C / C++</span><span>MATLAB &amp; Simulink</span><span>Bash</span><span>Cloudflared</span></div>
+        </div>
+        <div class="skill-cat">
+          <div class="ch"><span class="cno">D</span><span class="cn">Fabrication</span></div>
+          <div class="list"><span>CNC machining</span><span>Laser cutting</span><span>3D printing</span><span>Manual machining</span><span>Soldering</span><span>Welding</span></div>
+        </div>
+      </div>
+      <div class="coursework reveal" style="margin-top:26px">
+        <span class="chip">CSWA — Certified SolidWorks Associate</span><span class="chip">Embedded Systems &amp; Robotics · e-Yantra, IIT Bombay</span><span class="chip">MATLAB Onramp</span><span class="chip">Simulink Onramp</span><span class="chip">Intro to C++</span>
+      </div>
+    </section>
+
+    <!-- RECOGNITION -->
+    <section id="recognition">
+      <div class="sec-head reveal">
+        <span class="sec-no">05</span>
+        <h2 class="sec-title">Recognition</h2>
+        <span class="sec-rule"></span>
+      </div>
+      <div class="rec-grid">
+        <div class="card reveal">
+          <h4>Patents · Filed</h4>
+          <div class="patent"><div class="pt">An automated ergonogauge device for measuring three-dimensional spatial data</div><div class="pm">App. No. 202541029107 · Filed 27 Mar 2025 · <span class="stat">Under examination</span></div></div>
+          <div class="patent"><div class="pt">Orthodontic appliances to prevent tongue-thrusting habit</div><div class="pm">App. No. 202541032533 · Filed 02 Apr 2025 · <span class="stat">Under examination</span></div></div>
+        </div>
+        <div class="card reveal">
+          <h4>Leadership</h4>
+          <ul class="lead-list">
+            <li><div class="lr">Vice-Captain — CSD Robocon NITK</div><div class="lo">Jul 2024 — May 2025</div><div class="ld">Led a 40-member team to ABU Robocon 2025; ran operations, treasury, fundraising, and procurement.</div></li>
+            <li><div class="lr">Co-Founder &amp; Lead — Team GNARLY</div><div class="lo">Sept 2023 — May 2025</div><div class="ld">Founded and led a 15-member combat robotics team through design, funding, and inter-university competition.</div></li>
+            <li><div class="lr">Media &amp; Web Head — CSD Robocon NITK</div><div class="lo">Jan 2023 — Jul 2024</div><div class="ld">Revamped the team's digital presence, redesigning websites and outreach platforms.</div></li>
+          </ul>
+        </div>
+        <div class="card reveal rec-span">
+          <h4>Achievements</h4>
+          <ul class="ach-list">
+            <li><span class="yr">'23·'24·'25</span><span><b>ABU Robocon national rounds</b> — qualified all three years, scoring 96 / 95 / 88 out of 100 in Robot Design Documentation.</span></li>
+            <li><span class="yr">2024</span><span><b>2nd runner-up, Robowars</b> — VIT Vellore Gravitas 2024, serving as primary robot driver in combat matches.</span></li>
+            <li><span class="yr">2024</span><span><b>Runners-up, Embaddethon 2024</b> (IEEE NITK) — computer vision and sensor fusion challenge.</span></li>
+            <li><span class="yr">2023</span><span><b>Semi-finalist, IIT Bombay International Robowars</b> — under-15 kg, TECHFEST 2023.</span></li>
+            <li><span class="yr">2023</span><span><b>Runners-up, Robowars</b> — Manipal TECHTATVA '23.</span></li>
+            <li><span class="yr">2022</span><span><b>Winner, Open Innovation Track</b> — Technica '22 national hackathon (ISTE-VIT).</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <div class="contact-box reveal">
+        <span class="eyebrow ce" style="justify-content:center">06 · Contact</span>
+        <h2>Let's build something<br />that <em>works when it matters.</em></h2>
+        <p>Open to graduate research collaborations and robotics conversations. The fastest way to reach me is email.</p>
+        <div class="contact-links">
+          <a class="clink" href={`mailto:${site.email}`}>
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14"></rect><path d="M3 7l9 6 9-6"></path></svg>
+            {site.email}
+          </a>
+          <a class="clink" href={`tel:${site.phone.replace(/\s+/g, '')}`}>
+            <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a12 12 0 006 6l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"></path></svg>
+            {site.phone}
+          </a>
+          <a class="clink" href={site.github} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.5a3 3 0 00-.9-2.5c3-.3 6-1.5 6-6.5a5 5 0 00-1.4-3.5 4.6 4.6 0 00-.1-3.5s-1.1-.3-3.6 1.3a12 12 0 00-6.6 0C6.4 1.2 5.3 1.5 5.3 1.5a4.6 4.6 0 00-.1 3.5A5 5 0 003.8 8.5c0 5 3 6.2 6 6.5a3 3 0 00-.9 2.3V21"></path></svg>
+            GitHub
+          </a>
+          <a class="clink" href={site.linkedin} target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M8 11v5M8 8v.01M12 16v-3a2 2 0 014 0v3"></path></svg>
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Dot-scan portrait: sample the photo into blue dots, reveal the real image on hover/tap.
+    (function () {
+      const fig = document.querySelector('.portrait.cv');
+      if (!fig) return;
+      const frame = fig.querySelector('.frame');
+      const canvas = fig.querySelector('canvas.dots');
+      const src = canvas && canvas.getAttribute('data-src');
+      if (!frame || !canvas || !src) return;
+
+      const mix = (a, b, t) => [
+        Math.round(a[0] + (b[0] - a[0]) * t),
+        Math.round(a[1] + (b[1] - a[1]) * t),
+        Math.round(a[2] + (b[2] - a[2]) * t),
+      ];
+
+      const coverDraw = (ctx, im, w, h, focusY) => {
+        const ir = im.width / im.height, fr = w / h;
+        let dw, dh;
+        if (ir > fr) { dh = h; dw = h * ir; } else { dw = w; dh = w / ir; }
+        ctx.drawImage(im, (w - dw) / 2, (h - dh) * (focusY == null ? 0.5 : focusY), dw, dh);
+      };
+
+      const img = new Image();
+      let ready = false;
+
+      function render() {
+        if (!ready) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(1, Math.round(rect.width));
+        const h = Math.max(1, Math.round(rect.height));
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const tmp = document.createElement('canvas');
+        tmp.width = w; tmp.height = h;
+        const tctx = tmp.getContext('2d', { willReadFrequently: true });
+        coverDraw(tctx, img, w, h, 0.18);
+
+        let data;
+        try { data = tctx.getImageData(0, 0, w, h).data; }
+        catch (e) { fig.classList.add('no-dots'); return; }
+
+        ctx.clearRect(0, 0, w, h);
+        const step = 4;
+        const dimC = [43, 77, 143], briC = [150, 214, 255];
+        for (let y = step * 0.5; y < h; y += step) {
+          for (let x = step * 0.5; x < w; x += step) {
+            const i = ((Math.floor(y) * w) + Math.floor(x)) * 4;
+            if (data[i + 3] < 10) continue;
+            const lum = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+            const rad = Math.pow(lum, 0.85) * (step * 0.3);
+            if (rad < 0.35) continue;
+            const c = mix(dimC, briC, lum);
+            ctx.globalAlpha = 1 + lum * 1;
+            ctx.fillStyle = 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+            ctx.beginPath(); ctx.arc(x, y, rad, 0, 6.2832); ctx.fill();
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      img.onload = () => { ready = true; render(); };
+      img.onerror = () => { fig.classList.add('no-dots'); };
+      img.src = src;
+
+      let t;
+      new ResizeObserver(() => { clearTimeout(t); t = setTimeout(render, 120); }).observe(frame);
+
+      if (!window.matchMedia('(hover: hover)').matches) {
+        frame.addEventListener('click', () => fig.classList.toggle('revealed'));
+      }
+    })();
+  </script>
+</Base>

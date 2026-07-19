@@ -1,0 +1,300 @@
+---
+interface Props {
+  secNo?: string;
+}
+const { secNo = '03' } = Astro.props;
+---
+<section id="pid">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">{secNo}</span>
+      <h2 class="sec-title">PID Control</h2>
+      <span class="sec-rule"></span>
+    </div>
+    <p class="pp-intro reveal">
+      A mass on a damped rail, driven by a PID loop. Drag anywhere to command a new setpoint,
+      fire a disturbance kick, and tune Kp / Ki / Kd to watch the response go from sluggish to
+      oscillating to dialed-in.
+    </p>
+
+    <div class="pp-panel reveal">
+      <span class="tick-tl"></span><span class="tick-br"></span>
+      <div class="pp-head">
+        <span>PID LOOP · SIM</span>
+        <span class="pp-status" id="pidStatus">TRACKING</span>
+      </div>
+
+      <div class="pp-controls">
+        <div class="range-row">
+          <label class="range-field">
+            <span>Kp <b id="pidKpVal">6.0</b></span>
+            <input type="range" id="pidKp" min="0" max="20" value="6" step="0.1" />
+          </label>
+          <label class="range-field">
+            <span>Ki <b id="pidKiVal">1.0</b></span>
+            <input type="range" id="pidKi" min="0" max="8" value="1" step="0.1" />
+          </label>
+          <label class="range-field">
+            <span>Kd <b id="pidKdVal">2.0</b></span>
+            <input type="range" id="pidKd" min="0" max="6" value="2" step="0.1" />
+          </label>
+          <label class="range-field">
+            <span>Mass <b id="pidMassVal">1.5</b></span>
+            <input type="range" id="pidMass" min="0.5" max="4" value="1.5" step="0.1" />
+          </label>
+        </div>
+        <div class="pp-actions">
+          <button type="button" id="pidKick" class="btn">Disturb</button>
+          <button type="button" id="pidReset" class="btn">Reset</button>
+        </div>
+      </div>
+
+      <div class="pid-stage-wrap">
+        <svg
+          id="pidSvg"
+          class="pid-svg"
+          viewBox="0 0 700 460"
+          role="application"
+          aria-label="Interactive PID control simulation. Drag anywhere to command a new setpoint."
+        >
+          <defs>
+            <pattern id="pidGridPattern" width="28" height="28" patternUnits="userSpaceOnUse">
+              <path d="M 28 0 L 0 0 0 28" fill="none" class="sim-gridline"></path>
+            </pattern>
+          </defs>
+          <rect width="700" height="460" fill="url(#pidGridPattern)"></rect>
+
+          <line class="pid-rail-track" x1="70" y1="75" x2="630" y2="75"></line>
+          <circle id="pidCart" class="pid-cart" cx="350" cy="75" r="13"></circle>
+          <g id="pidFlag" class="pid-flag" transform="translate(350,75)">
+            <line x1="0" y1="-34" x2="0" y2="4"></line>
+            <path d="M0,-34 L20,-27 L0,-20 Z"></path>
+          </g>
+
+          <line class="pid-chart-border" x1="70" y1="130" x2="630" y2="130"></line>
+          <line class="pid-chart-border" x1="70" y1="130" x2="70" y2="430"></line>
+          <line class="pid-chart-border" x1="70" y1="430" x2="630" y2="430"></line>
+          <line id="pidZeroLine" class="pid-zero-line" x1="70" y1="280" x2="630" y2="280"></line>
+          <polyline id="pidSetLine" class="pid-set-line" points=""></polyline>
+          <polyline id="pidPosLine" class="pid-pos-line" points=""></polyline>
+        </svg>
+      </div>
+
+      <div class="pp-legend">
+        <span><i class="sw pid-sw-pos"></i>Position</span>
+        <span><i class="sw pid-sw-set"></i>Setpoint</span>
+      </div>
+
+      <div class="pp-stats">
+        <div class="cell"><div class="k">Error</div><div class="v" id="pidErr">0.0</div></div>
+        <div class="cell"><div class="k">Output</div><div class="v" id="pidOut">0.0</div></div>
+        <div class="cell"><div class="k">Peak error</div><div class="v" id="pidPeak">0.0</div></div>
+        <div class="cell"><div class="k">Settled for</div><div class="v" id="pidSettle">—</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pid-stage-wrap {
+    border: 1px solid var(--steel);
+    background: var(--panel);
+    line-height: 0;
+  }
+  .pid-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    cursor: ew-resize;
+  }
+
+  .pid-rail-track { stroke: var(--steel-line); stroke-width: 3; stroke-linecap: round; }
+  .pid-cart { fill: var(--blue-bright); stroke: var(--void); stroke-width: 2; }
+  .pid-flag { stroke: var(--cyan); fill: var(--cyan); stroke-width: 1.5; opacity: 0.9; }
+
+  .pid-chart-border { stroke: var(--steel); stroke-width: 1; }
+  .pid-zero-line { stroke: var(--steel-line); stroke-width: 1; stroke-dasharray: 4 5; }
+  .pid-set-line { fill: none; stroke: var(--cyan); stroke-width: 1.5; stroke-dasharray: 5 5; }
+  .pid-pos-line { fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linejoin: round; }
+</style>
+
+<style is:global>
+  .pid-sw-pos { background: var(--blue); }
+  .pid-sw-set { background: transparent; border-style: dashed; border-color: var(--cyan); }
+</style>
+
+<script>
+  (function () {
+    const svg = document.getElementById('pidSvg');
+    if (!svg) return;
+
+    const kpInput = document.getElementById('pidKp');
+    const kiInput = document.getElementById('pidKi');
+    const kdInput = document.getElementById('pidKd');
+    const massInput = document.getElementById('pidMass');
+    const kpVal = document.getElementById('pidKpVal');
+    const kiVal = document.getElementById('pidKiVal');
+    const kdVal = document.getElementById('pidKdVal');
+    const massVal = document.getElementById('pidMassVal');
+    const kickBtn = document.getElementById('pidKick');
+    const resetBtn = document.getElementById('pidReset');
+    const statusEl = document.getElementById('pidStatus');
+
+    const cart = document.getElementById('pidCart');
+    const flag = document.getElementById('pidFlag');
+    const setLine = document.getElementById('pidSetLine');
+    const posLine = document.getElementById('pidPosLine');
+
+    const errEl = document.getElementById('pidErr');
+    const outEl = document.getElementById('pidOut');
+    const peakEl = document.getElementById('pidPeak');
+    const settleEl = document.getElementById('pidSettle');
+
+    const RAIL_X0 = 70, RAIL_X1 = 630, RAIL_MID = 350, RAIL_HALF = 280;
+    const CHART_X0 = 70, CHART_X1 = 630, CHART_Y0 = 130, CHART_Y1 = 430;
+    const CHART_MID_Y = (CHART_Y0 + CHART_Y1) / 2;
+    const CHART_SCALE = 1; // px per unit
+    const WINDOW = 6; // seconds of history shown
+    const DAMPING = 1.5; // fixed viscous damping on the plant
+    const TOLERANCE = 4; // units considered "settled"
+    const VEL_TOLERANCE = 3;
+
+    let position = 0;
+    let velocity = 0;
+    let integral = 0;
+    let setpoint = 120;
+    let simTime = 0;
+    let lastFrameReal = null;
+    let peakError = 0;
+    let settledSince = null;
+    let samples = [];
+    let dragging = false;
+
+    function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+    function toSvgPoint(clientX, clientY) {
+      const pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return { x: RAIL_MID, y: 75 };
+      return pt.matrixTransform(ctm.inverse());
+    }
+
+    function setSetpointFromClient(clientX, clientY) {
+      const p = toSvgPoint(clientX, clientY);
+      setpoint = clamp(p.x - RAIL_MID, -RAIL_HALF, RAIL_HALF);
+      peakError = 0;
+      settledSince = null;
+    }
+
+    svg.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      svg.setPointerCapture(e.pointerId);
+      setSetpointFromClient(e.clientX, e.clientY);
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      setSetpointFromClient(e.clientX, e.clientY);
+    });
+    svg.addEventListener('pointerup', () => { dragging = false; });
+    svg.addEventListener('pointercancel', () => { dragging = false; });
+
+    function readGains() {
+      kpVal.textContent = Number(kpInput.value).toFixed(1);
+      kiVal.textContent = Number(kiInput.value).toFixed(1);
+      kdVal.textContent = Number(kdInput.value).toFixed(1);
+      massVal.textContent = Number(massInput.value).toFixed(1);
+      return {
+        Kp: Number(kpInput.value),
+        Ki: Number(kiInput.value),
+        Kd: Number(kdInput.value),
+        mass: Number(massInput.value),
+      };
+    }
+    [kpInput, kiInput, kdInput, massInput].forEach((el) => el.addEventListener('input', readGains));
+
+    kickBtn.addEventListener('click', () => {
+      const { mass } = readGains();
+      const sign = Math.random() < 0.5 ? 1 : -1;
+      velocity += (90 / mass) * sign;
+      peakError = 0;
+      settledSince = null;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      position = 0;
+      velocity = 0;
+      integral = 0;
+      setpoint = 120;
+      simTime = 0;
+      peakError = 0;
+      settledSince = null;
+      samples = [];
+    });
+
+    function xForTime(t) {
+      const t0 = simTime - WINDOW;
+      return CHART_X0 + ((t - t0) / WINDOW) * (CHART_X1 - CHART_X0);
+    }
+    function yForPos(p) {
+      return clamp(CHART_MID_Y - p * CHART_SCALE, CHART_Y0, CHART_Y1);
+    }
+
+    function step(dt) {
+      const { Kp, Ki, Kd, mass } = readGains();
+      const error = setpoint - position;
+      integral = clamp(integral + error * dt, -40, 40);
+      const derivative = -velocity; // derivative on measurement, avoids setpoint-drag kick
+      const output = Kp * error + Ki * integral + Kd * derivative;
+      const accel = (output - DAMPING * velocity) / mass;
+      velocity += accel * dt;
+      position += velocity * dt;
+      simTime += dt;
+
+      peakError = Math.max(peakError, Math.abs(error));
+      const settled = Math.abs(error) <= TOLERANCE && Math.abs(velocity) <= VEL_TOLERANCE;
+      if (settled) {
+        if (settledSince === null) settledSince = simTime;
+      } else {
+        settledSince = null;
+      }
+
+      samples.push({ t: simTime, pos: position, set: setpoint });
+      const cutoff = simTime - WINDOW;
+      while (samples.length && samples[0].t < cutoff) samples.shift();
+
+      render(error, output, settled);
+    }
+
+    function render(error, output, settled) {
+      const cartX = clamp(RAIL_MID + position, RAIL_X0, RAIL_X1);
+      const flagX = clamp(RAIL_MID + setpoint, RAIL_X0, RAIL_X1);
+      cart.setAttribute('cx', String(cartX));
+      flag.setAttribute('transform', `translate(${flagX},75)`);
+
+      const posPts = samples.map((s) => `${xForTime(s.t).toFixed(1)},${yForPos(s.pos).toFixed(1)}`).join(' ');
+      const setPts = samples.map((s) => `${xForTime(s.t).toFixed(1)},${yForPos(s.set).toFixed(1)}`).join(' ');
+      posLine.setAttribute('points', posPts);
+      setLine.setAttribute('points', setPts);
+
+      errEl.textContent = error.toFixed(1);
+      outEl.textContent = output.toFixed(1);
+      peakEl.textContent = peakError.toFixed(1);
+      settleEl.innerHTML = settledSince !== null ? (simTime - settledSince).toFixed(1) + '<span class="u">s</span>' : '—';
+      statusEl.textContent = settled ? 'SETTLED' : 'TRACKING';
+    }
+
+    function frame(now) {
+      if (lastFrameReal === null) lastFrameReal = now;
+      const dt = clamp((now - lastFrameReal) / 1000, 0, 0.05);
+      lastFrameReal = now;
+      step(dt);
+      requestAnimationFrame(frame);
+    }
+
+    readGains();
+    requestAnimationFrame(frame);
+  })();
+</script>

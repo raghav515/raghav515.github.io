@@ -1,0 +1,50 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const items = await getCollection('projects');
+  return items.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<Base title={`${d.title} — Raghavendra Jadhav`} description={d.summary}>
+  <div class="wrap article">
+    <header class="page-hero" style="padding-bottom:0">
+      <a class="back-link" href="/projects"><span class="a">←</span> All work</a>
+    </header>
+    <div class="article-head">
+      <div class="article-meta">
+        {d.venue && <span><b>Venue</b> {d.venue}</span>}
+        {d.period && <span><b>Period</b> {d.period}</span>}
+        {d.team && <span><b>Team</b> {d.team}</span>}
+        {d.role && <span><b>Role</b> {d.role}</span>}
+      </div>
+      <h1 class="at">{d.title}</h1>
+      <p class="summary">{d.summary}</p>
+      {d.tags && d.tags.length > 0 && (
+        <div class="tags" style="margin-top:22px">
+          {d.tags.map((t, i) => <span class={i === 0 ? 'tag hi' : 'tag'}>{t}</span>)}
+        </div>
+      )}
+    </div>
+    {d.cover && <div class="cover"><img src={d.cover} alt={d.title} /></div>}
+    <article class="prose"><Content /></article>
+    {d.gallery && d.gallery.length > 0 && (
+      <div class="gallery">
+        <div class="gh">Gallery</div>
+        <div class="gallery-grid">
+          {d.gallery.map((g) => (
+            <figure>
+              <img src={g.src} alt={g.caption || d.title} loading="lazy" />
+              {g.caption && <figcaption>{g.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</Base>

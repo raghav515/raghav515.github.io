@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:4321/bench)",
+      "Bash(curl -s \"http://localhost:4321/src/components/IKVisualizer.astro?astro&type=script&index=0&lang.ts\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

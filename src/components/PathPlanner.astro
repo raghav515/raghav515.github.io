@@ -1,0 +1,535 @@
+---
+interface Props {
+  secNo?: string;
+}
+const { secNo = '01' } = Astro.props;
+---
+<section id="pathfinding">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">{secNo}</span>
+      <h2 class="sec-title">Path Planning</h2>
+      <span class="sec-rule"></span>
+    </div>
+    <p class="pp-intro reveal">
+      The odometry sim, made playable. Paint walls onto the grid, pick a search algorithm, and run it —
+      watch it explore, find the shortest path (or fail to), then trace it end to end.
+    </p>
+
+    <div class="pp-panel reveal">
+      <span class="tick-tl"></span><span class="tick-br"></span>
+      <div class="pp-head">
+        <span>PATH PLANNER · SIM</span>
+        <span class="pp-status" id="ppStatus">READY</span>
+      </div>
+
+      <div class="pp-controls">
+        <div class="pp-modes" role="group" aria-label="Edit mode">
+          <button type="button" data-mode="wall" class="active">Wall</button>
+          <button type="button" data-mode="start">Start</button>
+          <button type="button" data-mode="end">End</button>
+        </div>
+        <select id="ppAlgo" class="pp-select" aria-label="Search algorithm">
+          <option value="bfs">Breadth-First Search</option>
+          <option value="dijkstra">Dijkstra</option>
+          <option value="astar" selected>A*</option>
+          <option value="greedy">Greedy Best-First</option>
+        </select>
+        <div class="pp-actions">
+          <button type="button" id="ppRun" class="btn primary">Run <span class="arw">↗</span></button>
+          <button type="button" id="ppResetPath" class="btn">Reset path</button>
+          <button type="button" id="ppClear" class="btn">Clear walls</button>
+        </div>
+      </div>
+
+      <div class="pp-grid-wrap" id="ppGridWrap">
+        <div
+          class="pp-grid"
+          id="ppGrid"
+          role="application"
+          aria-label="Interactive path planning grid. Click or drag to paint walls."
+        ></div>
+        <div class="pp-runner" id="ppRunner" hidden></div>
+      </div>
+
+      <div class="pp-legend">
+        <span><i class="sw start"></i>Start</span>
+        <span><i class="sw end"></i>End</span>
+        <span><i class="sw wall"></i>Wall</span>
+        <span><i class="sw visited"></i>Visited</span>
+        <span><i class="sw path"></i>Shortest path</span>
+      </div>
+
+      <div class="pp-stats">
+        <div class="cell"><div class="k">Algorithm</div><div class="v" id="ppStatAlgo">A*</div></div>
+        <div class="cell"><div class="k">Nodes visited</div><div class="v" id="ppStatVisited">0</div></div>
+        <div class="cell"><div class="k">Path length</div><div class="v" id="ppStatPath">—</div></div>
+        <div class="cell"><div class="k">Compute time</div><div class="v" id="ppStatTime">—<span class="u">ms</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pp-grid-wrap {
+    position: relative;
+    border: 1px solid var(--steel);
+  }
+  .pp-grid {
+    display: grid;
+    gap: 2px;
+    background: var(--steel);
+    touch-action: none;
+  }
+
+  .pp-runner {
+    position: absolute;
+    left: 0; top: 0;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 12px var(--cyan);
+    transform: translate(-50%, -50%);
+    transition: left 0.08s linear, top 0.08s linear;
+    pointer-events: none;
+  }
+
+  .sw.start { background: var(--blue-bright); }
+  .sw.end { background: var(--cyan); }
+  .sw.wall { background: var(--steel-line); }
+  .sw.visited { background: rgba(61, 123, 255, 0.35); }
+  .sw.path { background: var(--blue); }
+</style>
+
+<style is:global>
+  /* .pp-cell elements are created client-side (document.createElement), so they never
+     receive Astro's scoped data-astro-cid attribute — these rules must stay global. */
+  #ppGrid .pp-cell {
+    background: var(--void-2);
+    aspect-ratio: 1;
+    cursor: pointer;
+    transition: background 0.2s var(--ease);
+  }
+  #ppGrid .pp-cell.start { background: var(--blue-bright); }
+  #ppGrid .pp-cell.end { background: var(--cyan); }
+  #ppGrid .pp-cell.wall { background: var(--steel-line); }
+  #ppGrid .pp-cell.visited { background: rgba(61, 123, 255, 0.35); }
+  #ppGrid .pp-cell.path { background: var(--blue); }
+</style>
+
+<script>
+  (function () {
+    const gridWrap = document.getElementById('ppGridWrap');
+    const gridEl = document.getElementById('ppGrid');
+    const runner = document.getElementById('ppRunner');
+    if (!gridWrap || !gridEl || !runner) return;
+
+    const modeButtons = Array.from(document.querySelectorAll('.pp-modes button'));
+    const algoSelect = document.getElementById('ppAlgo');
+    const runBtn = document.getElementById('ppRun');
+    const resetPathBtn = document.getElementById('ppResetPath');
+    const clearBtn = document.getElementById('ppClear');
+    const statusEl = document.getElementById('ppStatus');
+    const statAlgo = document.getElementById('ppStatAlgo');
+    const statVisited = document.getElementById('ppStatVisited');
+    const statPath = document.getElementById('ppStatPath');
+    const statTime = document.getElementById('ppStatTime');
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const breakpoint = window.matchMedia('(max-width: 640px)');
+
+    let isSmall = breakpoint.matches;
+    let COLS, ROWS, start, end, wall, cellEls;
+
+    let mode = 'wall';
+    let painting = false;
+    let paintValue = true;
+    let running = false;
+    let rafId = null;
+    let timers = [];
+
+    function clearTimers() {
+      timers.forEach((t) => clearTimeout(t));
+      timers = [];
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+
+    function classFor(r, c) {
+      if (r === start.r && c === start.c) return 'start';
+      if (r === end.r && c === end.c) return 'end';
+      if (wall[r][c]) return 'wall';
+      return '';
+    }
+
+    function refreshCell(r, c) {
+      const el = cellEls[r][c];
+      const extra = el.dataset.extra || '';
+      el.className = 'pp-cell';
+      const base = classFor(r, c);
+      if (base) el.classList.add(base);
+      else if (extra) el.classList.add(extra);
+    }
+
+    function setExtra(r, c, extra) {
+      cellEls[r][c].dataset.extra = extra || '';
+      refreshCell(r, c);
+    }
+
+    function clearExtras() {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          cellEls[r][c].dataset.extra = '';
+          refreshCell(r, c);
+        }
+      }
+    }
+
+    function build() {
+      gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+      gridEl.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const el = document.createElement('div');
+          el.dataset.r = String(r);
+          el.dataset.c = String(c);
+          el.dataset.extra = '';
+          gridEl.appendChild(el);
+          cellEls[r][c] = el;
+        }
+      }
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) refreshCell(r, c);
+    }
+
+    function setup() {
+      isSmall = breakpoint.matches;
+      COLS = isSmall ? 14 : 24;
+      ROWS = isSmall ? 9 : 13;
+      start = { r: Math.floor(ROWS / 2), c: 1 };
+      end = { r: Math.floor(ROWS / 2), c: COLS - 2 };
+      wall = Array.from({ length: ROWS }, () => new Array(COLS).fill(false));
+      cellEls = Array.from({ length: ROWS }, () => new Array(COLS));
+      painting = false;
+      build();
+      invalidateSearch();
+    }
+
+    function isStartOrEnd(r, c) {
+      return (r === start.r && c === start.c) || (r === end.r && c === end.c);
+    }
+
+    function setStatus(text) { statusEl.textContent = text; }
+
+    function invalidateSearch() {
+      clearExtras();
+      runner.hidden = true;
+      setStatus('READY');
+      statVisited.textContent = '0';
+      statPath.textContent = '—';
+      statTime.textContent = '—';
+    }
+
+    function cellFromPoint(x, y) {
+      const el = document.elementFromPoint(x, y);
+      if (!el || !(el instanceof HTMLElement) || el.dataset.r === undefined) return null;
+      return { r: Number(el.dataset.r), c: Number(el.dataset.c) };
+    }
+
+    function handleStart(x, y) {
+      if (running) return;
+      const hit = cellFromPoint(x, y);
+      if (!hit) return;
+      invalidateSearch();
+      if (mode === 'wall') {
+        if (isStartOrEnd(hit.r, hit.c)) return;
+        paintValue = !wall[hit.r][hit.c];
+        wall[hit.r][hit.c] = paintValue;
+        refreshCell(hit.r, hit.c);
+        painting = true;
+      } else if (mode === 'start') {
+        if (hit.r === end.r && hit.c === end.c) return;
+        const prev = start;
+        start = { r: hit.r, c: hit.c };
+        wall[start.r][start.c] = false;
+        refreshCell(prev.r, prev.c);
+        refreshCell(start.r, start.c);
+      } else if (mode === 'end') {
+        if (hit.r === start.r && hit.c === start.c) return;
+        const prev = end;
+        end = { r: hit.r, c: hit.c };
+        wall[end.r][end.c] = false;
+        refreshCell(prev.r, prev.c);
+        refreshCell(end.r, end.c);
+      }
+    }
+
+    function handleMove(x, y) {
+      if (!painting || mode !== 'wall' || running) return;
+      const hit = cellFromPoint(x, y);
+      if (!hit || isStartOrEnd(hit.r, hit.c)) return;
+      wall[hit.r][hit.c] = paintValue;
+      refreshCell(hit.r, hit.c);
+    }
+
+    function handleEnd() { painting = false; }
+
+    gridEl.addEventListener('pointerdown', (e) => {
+      gridEl.setPointerCapture(e.pointerId);
+      handleStart(e.clientX, e.clientY);
+    });
+    gridEl.addEventListener('pointermove', (e) => handleMove(e.clientX, e.clientY));
+    gridEl.addEventListener('pointerup', handleEnd);
+    gridEl.addEventListener('pointercancel', handleEnd);
+
+    modeButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        mode = btn.dataset.mode || 'wall';
+      });
+    });
+
+    // ---- search algorithms ----
+    function neighbors(r, c) {
+      const out = [];
+      if (r > 0) out.push({ r: r - 1, c });
+      if (r < ROWS - 1) out.push({ r: r + 1, c });
+      if (c > 0) out.push({ r, c: c - 1 });
+      if (c < COLS - 1) out.push({ r, c: c + 1 });
+      return out.filter((n) => !wall[n.r][n.c]);
+    }
+
+    function heuristic(a, b) { return Math.abs(a.r - b.r) + Math.abs(a.c - b.c); }
+    function key(r, c) { return r * COLS + c; }
+
+    class MinHeap {
+      constructor() { this.a = []; }
+      get size() { return this.a.length; }
+      push(item) {
+        this.a.push(item);
+        let i = this.a.length - 1;
+        while (i > 0) {
+          const p = (i - 1) >> 1;
+          if (this.a[p].pri <= this.a[i].pri) break;
+          [this.a[p], this.a[i]] = [this.a[i], this.a[p]];
+          i = p;
+        }
+      }
+      pop() {
+        const top = this.a[0];
+        const last = this.a.pop();
+        if (this.a.length) {
+          this.a[0] = last;
+          let i = 0;
+          for (;;) {
+            const l = 2 * i + 1, r = 2 * i + 2;
+            let s = i;
+            if (l < this.a.length && this.a[l].pri < this.a[s].pri) s = l;
+            if (r < this.a.length && this.a[r].pri < this.a[s].pri) s = r;
+            if (s === i) break;
+            [this.a[s], this.a[i]] = [this.a[i], this.a[s]];
+            i = s;
+          }
+        }
+        return top;
+      }
+    }
+
+    function search(algo) {
+      const visitedOrder = [];
+      const came = new Map();
+
+      if (algo === 'bfs') {
+        const visited = new Set([key(start.r, start.c)]);
+        const q = [start];
+        let head = 0;
+        while (head < q.length) {
+          const cur = q[head++];
+          visitedOrder.push(cur);
+          if (cur.r === end.r && cur.c === end.c) break;
+          for (const n of neighbors(cur.r, cur.c)) {
+            const k = key(n.r, n.c);
+            if (!visited.has(k)) { visited.add(k); came.set(k, cur); q.push(n); }
+          }
+        }
+      } else {
+        const gScore = new Map([[key(start.r, start.c), 0]]);
+        const visited = new Set();
+        const heap = new MinHeap();
+        heap.push({ pri: algo === 'dijkstra' ? 0 : heuristic(start, end), node: start });
+        while (heap.size) {
+          const { node: cur } = heap.pop();
+          const ck = key(cur.r, cur.c);
+          if (visited.has(ck)) continue;
+          visited.add(ck);
+          visitedOrder.push(cur);
+          if (cur.r === end.r && cur.c === end.c) break;
+          const g = gScore.get(ck) ?? 0;
+          for (const n of neighbors(cur.r, cur.c)) {
+            const nk = key(n.r, n.c);
+            if (visited.has(nk)) continue;
+            if (algo === 'greedy') {
+              if (!came.has(nk)) { came.set(nk, cur); heap.push({ pri: heuristic(n, end), node: n }); }
+            } else {
+              const ng = g + 1;
+              const prevG = gScore.get(nk);
+              if (prevG === undefined || ng < prevG) {
+                gScore.set(nk, ng);
+                came.set(nk, cur);
+                const pri = algo === 'astar' ? ng + heuristic(n, end) : ng;
+                heap.push({ pri, node: n });
+              }
+            }
+          }
+        }
+      }
+
+      let path = null;
+      if (start.r === end.r && start.c === end.c) {
+        path = [start];
+      } else if (came.has(key(end.r, end.c))) {
+        path = [end];
+        let cur = end;
+        while (!(cur.r === start.r && cur.c === start.c)) {
+          cur = came.get(key(cur.r, cur.c));
+          path.push(cur);
+        }
+        path.reverse();
+      }
+      return { visitedOrder, path };
+    }
+
+    const algoLabels = { bfs: 'Breadth-First Search', dijkstra: 'Dijkstra', astar: 'A*', greedy: 'Greedy Best-First' };
+
+    function positionRunner(cell) {
+      runner.style.left = ((cell.c + 0.5) / COLS) * 100 + '%';
+      runner.style.top = ((cell.r + 0.5) / ROWS) * 100 + '%';
+    }
+
+    function runAnimation() {
+      if (running) return;
+      clearTimers();
+      clearExtras();
+      runner.hidden = true;
+      running = true;
+      runBtn.disabled = true;
+      setStatus('SEARCHING…');
+
+      const algo = algoSelect.value;
+      const t0 = performance.now();
+      const { visitedOrder, path } = search(algo);
+      const t1 = performance.now();
+
+      statAlgo.textContent = algoLabels[algo] || algo;
+      statVisited.textContent = String(visitedOrder.length);
+      statTime.innerHTML = (t1 - t0).toFixed(2) + '<span class="u">ms</span>';
+      statPath.textContent = path ? String(path.length - 1) : '—';
+
+      const reveal = visitedOrder.filter((n) => !isStartOrEnd(n.r, n.c));
+
+      if (reduceMotion) {
+        reveal.forEach((n) => setExtra(n.r, n.c, 'visited'));
+        if (path) {
+          path.filter((n) => !isStartOrEnd(n.r, n.c)).forEach((n) => setExtra(n.r, n.c, 'path'));
+          runner.hidden = false;
+          positionRunner(path[path.length - 1]);
+          setStatus('PATH FOUND');
+        } else {
+          setStatus('NO PATH FOUND');
+        }
+        running = false;
+        runBtn.disabled = false;
+        return;
+      }
+
+      const total = reveal.length;
+      const duration = Math.min(1400, 450 + total * 5);
+      const perTick = Math.max(1, Math.ceil(total / (duration / 16)));
+      let i = 0;
+
+      function tick() {
+        const lim = Math.min(total, i + perTick);
+        for (; i < lim; i++) setExtra(reveal[i].r, reveal[i].c, 'visited');
+        if (i < total) rafId = requestAnimationFrame(tick);
+        else { rafId = null; afterVisited(); }
+      }
+
+      function afterVisited() {
+        if (!path) {
+          setStatus('NO PATH FOUND');
+          running = false;
+          runBtn.disabled = false;
+          return;
+        }
+        const inner = path.filter((n) => !isStartOrEnd(n.r, n.c));
+        let j = 0;
+        function tickPath() {
+          if (j < inner.length) {
+            setExtra(inner[j].r, inner[j].c, 'path');
+            j++;
+            timers.push(setTimeout(tickPath, 16));
+          } else {
+            animateRunner();
+          }
+        }
+        tickPath();
+      }
+
+      function animateRunner() {
+        setStatus('PATH FOUND');
+        runner.hidden = false;
+        positionRunner(path[0]);
+        let k = 0;
+        const stepMs = Math.max(35, Math.min(90, Math.round(900 / path.length)));
+        function step() {
+          if (k >= path.length) { running = false; runBtn.disabled = false; return; }
+          positionRunner(path[k]);
+          k++;
+          timers.push(setTimeout(step, stepMs));
+        }
+        step();
+      }
+
+      tick();
+    }
+
+    function resetPath() {
+      clearTimers();
+      running = false;
+      runBtn.disabled = false;
+      invalidateSearch();
+    }
+
+    function clearWalls() {
+      resetPath();
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) wall[r][c] = false;
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) refreshCell(r, c);
+    }
+
+    runBtn.addEventListener('click', runAnimation);
+    resetPathBtn.addEventListener('click', resetPath);
+    clearBtn.addEventListener('click', clearWalls);
+
+    function sizeRunner() {
+      const rect = cellEls[0][0].getBoundingClientRect();
+      runner.style.width = rect.width * 0.55 + 'px';
+      runner.style.height = rect.width * 0.55 + 'px';
+    }
+
+    setup();
+    sizeRunner();
+    new ResizeObserver(sizeRunner).observe(gridEl);
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (breakpoint.matches !== isSmall) {
+          clearTimers();
+          running = false;
+          runBtn.disabled = false;
+          setup();
+          sizeRunner();
+        }
+      }, 200);
+    });
+  })();
+</script>

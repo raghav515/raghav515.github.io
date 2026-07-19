@@ -1,0 +1,39 @@
+---
+const links = [
+  { href: '/projects', label: 'Work' },
+  { href: '/blog', label: 'Writing' },
+  { href: '/journey', label: 'Journey' },
+  { href: '/bench', label: 'Bench' },
+  { href: '/#about', label: 'About' },
+  { href: '/#contact', label: 'Contact' },
+];
+---
+<nav class="dock" id="dock" aria-label="Primary">
+  <a class="brand" href="/" aria-label="Home">
+    <span class="monogram">RJ</span>
+  </a>
+  <div class="dock-links">
+    {links.map((l) => <a href={l.href}>{l.label}</a>)}
+  </div>
+</nav>
+
+<script>
+  const dock = document.getElementById('dock');
+  if (dock) {
+    const updateMask = () => {
+      const max = dock.scrollWidth - dock.clientWidth;
+      const showLeft = dock.scrollLeft > 4;
+      const showRight = dock.scrollLeft < max - 4;
+      const mask =
+        'linear-gradient(to right,' +
+        (showLeft ? 'transparent,black 24px,' : 'black,') +
+        (showRight ? 'black calc(100% - 24px),transparent' : 'black') +
+        ')';
+      dock.style.setProperty('mask-image', mask);
+      dock.style.setProperty('-webkit-mask-image', mask);
+    };
+    updateMask();
+    dock.addEventListener('scroll', updateMask, { passive: true });
+    window.addEventListener('resize', updateMask);
+  }
+</script>

@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const entries = (await getCollection('journey', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const fmt = (dt) => dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'short' });
+---
+<Base title="Journey — Raghavendra Jadhav">
+  <div class="wrap">
+    <header class="page-hero">
+      <a class="back-link" href="/"><span class="a">←</span> Home</a>
+      <span class="eyebrow kicker">Journey</span>
+      <h1>The Long Build</h1>
+      <p class="sub">Not a résumé — the story underneath it. The late nights, the robots that broke before they worked, and the people who built them alongside me.</p>
+    </header>
+    <section style="padding-top:4px">
+      {entries.length ? (
+        <div class="index-list timeline">
+          {entries.map((e) => (
+            <a class="index-row reveal" href={`/journey/${e.id}`}>
+              <div class="rd">{e.data.period || fmt(e.data.date)}{e.data.location && <Fragment><br />{e.data.location}</Fragment>}</div>
+              <div>
+                <div class="rt">{e.data.title}</div>
+              </div>
+              <div class="arw">↗</div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="empty">No entries yet. Start your story in <b>/admin</b>.</div>
+      )}
+    </section>
+  </div>
+</Base>

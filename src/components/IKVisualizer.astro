@@ -1,0 +1,310 @@
+---
+interface Props {
+  secNo?: string;
+}
+const { secNo = '02' } = Astro.props;
+---
+<section id="kinematics">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="sec-no">{secNo}</span>
+      <h2 class="sec-title">Inverse Kinematics</h2>
+      <span class="sec-rule"></span>
+    </div>
+    <p class="pp-intro reveal">
+      A two-link planar arm, solved live. Drag the target and watch the analytic IK solution
+      pick joint angles that reach it — or clamp to the nearest reachable point when it can't.
+    </p>
+
+    <div class="pp-panel reveal">
+      <span class="tick-tl"></span><span class="tick-br"></span>
+      <div class="pp-head">
+        <span>2-LINK ARM · SIM</span>
+        <span class="pp-status" id="ikStatus">READY</span>
+      </div>
+
+      <div class="pp-controls">
+        <div class="range-row">
+          <label class="range-field">
+            <span>Link 1 <b id="ikL1Val">120</b></span>
+            <input type="range" id="ikL1" min="40" max="150" value="120" step="1" />
+          </label>
+          <label class="range-field">
+            <span>Link 2 <b id="ikL2Val">90</b></span>
+            <input type="range" id="ikL2" min="40" max="150" value="90" step="1" />
+          </label>
+        </div>
+        <div class="pp-modes" role="group" aria-label="Elbow configuration">
+          <button type="button" data-elbow="1" class="active">Elbow up</button>
+          <button type="button" data-elbow="-1">Elbow down</button>
+        </div>
+        <div class="pp-actions">
+          <button type="button" id="ikSweep" class="btn">Auto sweep</button>
+          <button type="button" id="ikReset" class="btn">Reset</button>
+        </div>
+      </div>
+
+      <div class="ik-stage-wrap">
+        <svg
+          id="ikSvg"
+          class="ik-svg"
+          viewBox="0 0 700 700"
+          role="application"
+          aria-label="Interactive inverse kinematics arm. Drag to move the target."
+        >
+          <defs>
+            <pattern id="ikGridPattern" width="28" height="28" patternUnits="userSpaceOnUse">
+              <path d="M 28 0 L 0 0 0 28" fill="none" class="sim-gridline" />
+            </pattern>
+          </defs>
+          <rect width="700" height="700" fill="url(#ikGridPattern)" />
+
+          <circle id="ikOuter" class="ik-ring" cx="350" cy="350" r="0"></circle>
+          <circle id="ikInner" class="ik-ring" cx="350" cy="350" r="0"></circle>
+
+          <line id="ikLink1" class="ik-link" x1="350" y1="350" x2="350" y2="350"></line>
+          <line id="ikLink2" class="ik-link" x1="350" y1="350" x2="350" y2="350"></line>
+
+          <g id="ikTarget" class="ik-target" transform="translate(350,350)">
+            <line x1="-11" y1="0" x2="11" y2="0"></line>
+            <line x1="0" y1="-11" x2="0" y2="11"></line>
+            <circle r="13"></circle>
+          </g>
+
+          <circle id="ikBase" class="ik-joint base" cx="350" cy="350" r="9"></circle>
+          <circle id="ikElbow" class="ik-joint elbow" cx="350" cy="350" r="7"></circle>
+          <circle id="ikEnd" class="ik-joint end" cx="350" cy="350" r="7"></circle>
+        </svg>
+      </div>
+
+      <div class="pp-legend">
+        <span><i class="sw ik-sw-link"></i>Links</span>
+        <span><i class="sw ik-sw-joint"></i>Joints</span>
+        <span><i class="sw ik-sw-target"></i>Target</span>
+        <span><i class="sw ik-sw-ring"></i>Reach limit</span>
+      </div>
+
+      <div class="pp-stats">
+        <div class="cell"><div class="k">θ1</div><div class="v" id="ikT1">0<span class="u">°</span></div></div>
+        <div class="cell"><div class="k">θ2</div><div class="v" id="ikT2">0<span class="u">°</span></div></div>
+        <div class="cell"><div class="k">End X, Y</div><div class="v" id="ikEndXY">0, 0</div></div>
+        <div class="cell"><div class="k">Reach</div><div class="v" id="ikReach">—</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ik-stage-wrap {
+    border: 1px solid var(--steel);
+    background: var(--panel);
+    line-height: 0;
+  }
+  .ik-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+    cursor: crosshair;
+  }
+</style>
+
+<style is:global>
+  .ik-ring { fill: none; stroke: var(--steel-line); stroke-width: 1; stroke-dasharray: 5 6; }
+  .ik-link { stroke: var(--blue); stroke-width: 6; stroke-linecap: round; }
+  .ik-joint { stroke: var(--void); stroke-width: 2; }
+  .ik-joint.base { fill: var(--ink-2); r: 9; }
+  .ik-joint.elbow { fill: var(--blue-bright); }
+  .ik-joint.end { fill: var(--cyan); }
+  .ik-target { stroke: var(--cyan); stroke-width: 1.5; opacity: 0.85; }
+  .ik-target circle { fill: none; }
+  .ik-target.unreachable { stroke: #ff6a6a; }
+
+  .ik-sw-link { background: var(--blue); }
+  .ik-sw-joint { background: var(--blue-bright); }
+  .ik-sw-target { background: transparent; border-color: var(--cyan); }
+  .ik-sw-ring { background: transparent; border-style: dashed; border-color: var(--steel-line); }
+</style>
+
+<script>
+  (function () {
+    const svg = document.getElementById('ikSvg');
+    if (!svg) return;
+
+    const l1Input = document.getElementById('ikL1');
+    const l2Input = document.getElementById('ikL2');
+    const l1Val = document.getElementById('ikL1Val');
+    const l2Val = document.getElementById('ikL2Val');
+    const elbowButtons = Array.from(document.querySelectorAll('#kinematics .pp-modes button'));
+    const sweepBtn = document.getElementById('ikSweep');
+    const resetBtn = document.getElementById('ikReset');
+    const statusEl = document.getElementById('ikStatus');
+
+    const outer = document.getElementById('ikOuter');
+    const inner = document.getElementById('ikInner');
+    const link1 = document.getElementById('ikLink1');
+    const link2 = document.getElementById('ikLink2');
+    const base = document.getElementById('ikBase');
+    const elbow = document.getElementById('ikElbow');
+    const end = document.getElementById('ikEnd');
+    const target = document.getElementById('ikTarget');
+
+    const t1El = document.getElementById('ikT1');
+    const t2El = document.getElementById('ikT2');
+    const endXYEl = document.getElementById('ikEndXY');
+    const reachEl = document.getElementById('ikReach');
+
+    const BASE = { x: 350, y: 350 };
+    let L1 = Number(l1Input.value);
+    let L2 = Number(l2Input.value);
+    let elbowSign = 1;
+    let targetPos = { x: BASE.x, y: BASE.y - (L1 + L2) * 0.6 };
+    let dragging = false;
+    let sweeping = false;
+    let sweepRaf = null;
+
+    function toSvgPoint(clientX, clientY) {
+      const pt = svg.createSVGPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return { x: BASE.x, y: BASE.y };
+      const p = pt.matrixTransform(ctm.inverse());
+      return { x: p.x, y: p.y };
+    }
+
+    function solve() {
+      const dx = targetPos.x - BASE.x;
+      const dy = targetPos.y - BASE.y;
+      const rawR = Math.hypot(dx, dy);
+      const minR = Math.abs(L1 - L2) + 0.0001;
+      const maxR = L1 + L2 - 0.0001;
+      const r = Math.min(Math.max(rawR, minR), maxR);
+      const reachable = rawR >= minR && rawR <= maxR;
+
+      const cosT2 = Math.min(1, Math.max(-1, (r * r - L1 * L1 - L2 * L2) / (2 * L1 * L2)));
+      const theta2 = elbowSign * Math.acos(cosT2);
+      const angleToTarget = Math.atan2(dy, dx);
+      const theta1 = angleToTarget - Math.atan2(L2 * Math.sin(theta2), L1 + L2 * Math.cos(theta2));
+
+      const elbowX = BASE.x + L1 * Math.cos(theta1);
+      const elbowY = BASE.y + L1 * Math.sin(theta1);
+      const endX = elbowX + L2 * Math.cos(theta1 + theta2);
+      const endY = elbowY + L2 * Math.sin(theta1 + theta2);
+
+      link1.setAttribute('x1', String(BASE.x));
+      link1.setAttribute('y1', String(BASE.y));
+      link1.setAttribute('x2', String(elbowX));
+      link1.setAttribute('y2', String(elbowY));
+      link2.setAttribute('x1', String(elbowX));
+      link2.setAttribute('y1', String(elbowY));
+      link2.setAttribute('x2', String(endX));
+      link2.setAttribute('y2', String(endY));
+      elbow.setAttribute('cx', String(elbowX));
+      elbow.setAttribute('cy', String(elbowY));
+      end.setAttribute('cx', String(endX));
+      end.setAttribute('cy', String(endY));
+      target.setAttribute('transform', `translate(${targetPos.x},${targetPos.y})`);
+      target.classList.toggle('unreachable', !reachable);
+
+      const deg = (rad) => (((rad * 180) / Math.PI) % 360 + 360) % 360;
+      t1El.innerHTML = deg(theta1).toFixed(1) + '<span class="u">°</span>';
+      t2El.innerHTML = deg(theta2).toFixed(1) + '<span class="u">°</span>';
+      endXYEl.textContent = Math.round(endX - BASE.x) + ', ' + Math.round(BASE.y - endY);
+      reachEl.textContent = reachable ? 'IN RANGE' : 'CLAMPED';
+      statusEl.textContent = reachable ? 'TRACKING' : 'CLAMPED';
+    }
+
+    function setLinkLengths() {
+      L1 = Number(l1Input.value);
+      L2 = Number(l2Input.value);
+      l1Val.textContent = String(L1);
+      l2Val.textContent = String(L2);
+      outer.setAttribute('r', String(L1 + L2));
+      inner.setAttribute('r', String(Math.abs(L1 - L2)));
+      solve();
+    }
+
+    base.setAttribute('cx', String(BASE.x));
+    base.setAttribute('cy', String(BASE.y));
+    outer.setAttribute('cx', String(BASE.x));
+    outer.setAttribute('cy', String(BASE.y));
+    inner.setAttribute('cx', String(BASE.x));
+    inner.setAttribute('cy', String(BASE.y));
+
+    l1Input.addEventListener('input', setLinkLengths);
+    l2Input.addEventListener('input', setLinkLengths);
+
+    elbowButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        elbowButtons.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        elbowSign = Number(btn.dataset.elbow);
+        solve();
+      });
+    });
+
+    function stopSweep() {
+      sweeping = false;
+      sweepBtn.textContent = 'Auto sweep';
+      if (sweepRaf) { cancelAnimationFrame(sweepRaf); sweepRaf = null; }
+    }
+
+    function startSweep() {
+      sweeping = true;
+      sweepBtn.textContent = 'Stop sweep';
+      const t0 = performance.now();
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) { stopSweep(); return; }
+      function frame(now) {
+        if (!sweeping) return;
+        const t = (now - t0) / 1000;
+        const radius = (L1 + L2) * 0.75;
+        targetPos = {
+          x: BASE.x + Math.cos(t * 0.6) * radius,
+          y: BASE.y + Math.sin(t * 0.9) * radius * 0.6 - radius * 0.15,
+        };
+        solve();
+        sweepRaf = requestAnimationFrame(frame);
+      }
+      sweepRaf = requestAnimationFrame(frame);
+    }
+
+    sweepBtn.addEventListener('click', () => {
+      if (sweeping) stopSweep();
+      else startSweep();
+    });
+
+    function pointerMove(clientX, clientY) {
+      targetPos = toSvgPoint(clientX, clientY);
+      solve();
+    }
+
+    svg.addEventListener('pointerdown', (e) => {
+      stopSweep();
+      dragging = true;
+      svg.setPointerCapture(e.pointerId);
+      pointerMove(e.clientX, e.clientY);
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      pointerMove(e.clientX, e.clientY);
+    });
+    svg.addEventListener('pointerup', () => { dragging = false; });
+    svg.addEventListener('pointercancel', () => { dragging = false; });
+
+    resetBtn.addEventListener('click', () => {
+      stopSweep();
+      l1Input.value = '120';
+      l2Input.value = '90';
+      elbowSign = 1;
+      elbowButtons.forEach((b) => b.classList.remove('active'));
+      elbowButtons[0].classList.add('active');
+      setLinkLengths();
+      targetPos = { x: BASE.x, y: BASE.y - (L1 + L2) * 0.6 };
+      solve();
+    });
+
+    setLinkLengths();
+  })();
+</script>
