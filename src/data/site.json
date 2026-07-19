@@ -1,10 +1,84 @@
 {
-  "portrait": "/uploads/photo.png",
+  "portrait": "/uploads/photo.webp",
   "resume": "",
   "heroTagline": "I build robotic systems end to end — the structure, the circuit boards, and the control that ties them together. From combat arenas and Robocon fields to cryogenic LPG terminals.",
   "email": "rjadhav4103@gmail.com",
   "phone": "+91 99670 46515",
   "github": "https://github.com/raghav515",
   "linkedin": "https://www.linkedin.com/in/raghavendrajadhav/",
-  "availability": "Site Engineer @ BPCL"
+  "availability": "Site Engineer @ BPCL",
+  "certifications": [
+    { "name": "CSWA — Certified SolidWorks Associate", "issuer": "Dassault Systèmes", "date": "", "url": "" },
+    { "name": "Embedded Systems & Robotics", "issuer": "e-Yantra, IIT Bombay", "date": "", "url": "" },
+    { "name": "MATLAB Onramp", "issuer": "MathWorks", "date": "", "url": "" },
+    { "name": "Simulink Onramp", "issuer": "MathWorks", "date": "", "url": "" },
+    { "name": "Intro to C++", "issuer": "", "date": "", "url": "" }
+  ],
+  "patents": [
+    {
+      "type": "Patent",
+      "title": "An automated ergonogauge device for measuring three-dimensional spatial data",
+      "meta": "App. No. 202541029107 · Filed 27 Mar 2025",
+      "status": "Under examination",
+      "note": "",
+      "link": ""
+    },
+    {
+      "type": "Patent",
+      "title": "Orthodontic appliances to prevent tongue-thrusting habit",
+      "meta": "App. No. 202541032533 · Filed 02 Apr 2025",
+      "status": "Under examination",
+      "note": "",
+      "link": ""
+    }
+  ],
+  "leadership": [
+    {
+      "role": "Vice-Captain — CSD Robocon NITK",
+      "period": "Jul 2024 — May 2025",
+      "description": "Led a 40-member team to ABU Robocon 2025; ran operations, treasury, fundraising, and procurement."
+    },
+    {
+      "role": "Co-Founder & Lead — Team GNARLY",
+      "period": "Sept 2023 — May 2025",
+      "description": "Founded and led a 15-member combat robotics team through design, funding, and inter-university competition."
+    },
+    {
+      "role": "Media & Web Head — CSD Robocon NITK",
+      "period": "Jan 2023 — Jul 2024",
+      "description": "Revamped the team's digital presence, redesigning websites and outreach platforms."
+    }
+  ],
+  "achievements": [
+    {
+      "year": "'23·'24·'25",
+      "title": "ABU Robocon national rounds",
+      "description": "Qualified all three years, scoring 96 / 95 / 88 out of 100 in Robot Design Documentation."
+    },
+    {
+      "year": "2024",
+      "title": "2nd runner-up, Robowars",
+      "description": "VIT Vellore Gravitas 2024, serving as primary robot driver in combat matches."
+    },
+    {
+      "year": "2024",
+      "title": "Runners-up, Embaddethon 2024",
+      "description": "IEEE NITK — computer vision and sensor fusion challenge."
+    },
+    {
+      "year": "2023",
+      "title": "Semi-finalist, IIT Bombay International Robowars",
+      "description": "Under-15 kg, TECHFEST 2023."
+    },
+    {
+      "year": "2023",
+      "title": "Runners-up, Robowars",
+      "description": "Manipal TECHTATVA '23."
+    },
+    {
+      "year": "2022",
+      "title": "Winner, Open Innovation Track",
+      "description": "Technica '22 national hackathon (ISTE-VIT)."
+    }
+  ]
 }

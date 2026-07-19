@@ -1,8 +1,9 @@
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
-// After you deploy, change this to your real URL (e.g. https://raghav-jadhav.netlify.app)
 export default defineConfig({
-  site: 'https://your-site.netlify.app',
+  site: 'https://www.raghavendrajadhav.in',
+  integrations: [sitemap()],
   devToolbar: {
     enabled: false,
   },

@@ -64,28 +64,28 @@ git push -u origin main
 1. Go to netlify.com → **Add new site → Import an existing project** → pick your GitHub repo.
 2. Netlify reads `netlify.toml`, so the build command (`npm run build`) and publish directory
    (`dist`) are already set. Click **Deploy**.
-3. Your site goes live at `https://<something>.netlify.app`. You can rename it under
-   **Site configuration → Change site name**, and add a custom domain later under **Domain management**.
-4. Edit `astro.config.mjs` and set `site` to your final URL, then commit — this keeps links/SEO correct.
+3. Add a custom domain under **Domain management**. This site is already live at
+   `https://www.raghavendrajadhav.in`, and `astro.config.mjs` / `robots.txt` / the sitemap are
+   already pointed at that URL — if the domain ever changes, update `site` in `astro.config.mjs`
+   and the `Sitemap:` line in `public/robots.txt` to match.
 
 ---
 
 ## 4. Turn on the content manager (`/admin`)
 
-The CMS logs you in through Netlify Identity and saves changes back to GitHub.
+The CMS logs you in via **DecapBridge** (a hosted PKCE OAuth bridge for Decap CMS) rather than
+Netlify Identity — Netlify Identity is deprecated for new sites, so `public/admin/config.yml` is
+already configured with a DecapBridge `backend` block pointing at your registered site
+(`sites/<your-site-id>` under `auth.decapbridge.com`). If you ever need to re-register or rotate
+this, see decapbridge.com for the current setup flow.
 
-1. In your Netlify site: **Site configuration → Identity → Enable Identity**.
-2. Under Identity → **Registration**, set it to **Invite only** (so only you can log in).
-3. Under Identity → **Services → Git Gateway**, click **Enable Git Gateway**.
-4. Under Identity → **Invite users**, invite your own email. Check your inbox, accept, set a password.
-5. Visit `https://YOUR-SITE.netlify.app/admin/` and log in.
+Visit `https://www.raghavendrajadhav.in/admin/`, log in, and you'll see **Projects, Writing,
+Journey, and Site**. Add or edit an entry, hit **Publish**, and Netlify rebuilds automatically in
+about a minute. Images you upload land in `public/uploads`.
 
-You'll see **Projects, Writing, Journey, and Site**. Add or edit an entry, hit **Publish**, and
-Netlify rebuilds automatically in about a minute. Images you upload land in `public/uploads`.
-
-> Tip: to test the CMS on your own machine before deploying, uncomment `local_backend: true` in
-> `public/admin/config.yml`, run `npx decap-server` in one terminal and `npm run dev` in another,
-> then open http://localhost:4321/admin/.
+> Tip: `local_backend: true` is enabled in `public/admin/config.yml` so you can also test the CMS
+> locally — run `npx decap-server` in one terminal and `npm run dev` in another, then open
+> http://localhost:4321/admin/.
 
 ---
 

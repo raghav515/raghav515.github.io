@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import ProjectCard from '../components/ProjectCard.astro';
 import site from '../data/site.json';
 
 const all = (await getCollection('projects')).sort(
@@ -16,7 +17,28 @@ const show = (featured.length ? featured : all).slice(0, 5);
     <!-- HERO -->
     <header class="hero">
       <div class="hero-grid">
-        <div>
+        <figure class={site.portrait ? 'portrait cv reveal' : 'portrait reveal'}>
+          <span class="tick-bl"></span><span class="tick-br"></span>
+          <div class="frame">
+            {site.portrait ? (
+              <Fragment>
+                <img class="pf" src={site.portrait} alt="Raghavendra Jadhav" />
+                <canvas class="dots" data-src={site.portrait} aria-hidden="true"></canvas>
+                <div class="cv-scan" aria-hidden="true"></div>
+                <div class="cv-hud" aria-hidden="true"><span class="cv-tag">FACE // SCAN</span><span class="cv-hint">HOVER</span></div>
+              </Fragment>
+            ) : (
+              <div class="ph">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"></circle><path d="M4.5 20.5a7.5 7.5 0 0115 0"></path></svg>
+                <div class="ph-t">ADD PORTRAIT</div>
+                <div class="ph-s">CMS · Site → Profile</div>
+              </div>
+            )}
+          </div>
+          <figcaption class="cap"><span>FIG.01</span><span><b>R. Jadhav</b> · Mech/Robotics</span></figcaption>
+        </figure>
+
+        <div class="hero-text">
           <span class="eyebrow">Mechanical &amp; Robotics Engineer</span>
           <h1>Raghavendra<br /><span class="last">Jadhav</span></h1>
           <p class="lede" set:html={site.heroTagline}></p>
@@ -27,36 +49,15 @@ const show = (featured.length ? featured : all).slice(0, 5);
           </div>
           <div class="cta-row">
             {site.resume ? (
-              <a class="btn primary" href={site.resume} download target="_blank" rel="noopener">Download résumé <span class="arw">↓</span></a>
+              <a class="btn primary" href={site.resume} target="_blank" rel="noopener">Resume <span class="arw">↗</span></a>
             ) : (
-              <a class="btn primary" href="/admin/" title="Add your résumé via the CMS">Add résumé <span class="arw">↗</span></a>
+              <a class="btn primary" href="/admin/" title="Add your résumé via the CMS">Resume <span class="arw">↗</span></a>
             )}
             <a class="btn" href="#contact">Get in touch</a>
           </div>
         </div>
 
         <div class="hero-right reveal">
-          <figure class={site.portrait ? 'portrait cv' : 'portrait'}>
-            <span class="tick-bl"></span><span class="tick-br"></span>
-            <div class="frame">
-              {site.portrait ? (
-                <Fragment>
-                  <img class="pf" src={site.portrait} alt="Raghavendra Jadhav" />
-                  <canvas class="dots" data-src={site.portrait} aria-hidden="true"></canvas>
-                  <div class="cv-scan" aria-hidden="true"></div>
-                  <div class="cv-hud" aria-hidden="true"><span class="cv-tag">FACE // SCAN</span><span class="cv-hint">HOVER</span></div>
-                </Fragment>
-              ) : (
-                <div class="ph">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="4"></circle><path d="M4.5 20.5a7.5 7.5 0 0115 0"></path></svg>
-                  <div class="ph-t">ADD PORTRAIT</div>
-                  <div class="ph-s">CMS · Site → Profile</div>
-                </div>
-              )}
-            </div>
-            <figcaption class="cap"><span>FIG.01</span><span><b>R. Jadhav</b> · Mech/Robotics</span></figcaption>
-          </figure>
-
           <aside class="instrument" aria-hidden="true">
             <span class="tick-bl"></span><span class="tick-br"></span>
             <div class="inst-head"><span>ODOMETRY · SIM</span><span><b id="statusTxt">ONLINE</b></span></div>
@@ -103,29 +104,37 @@ const show = (featured.length ? featured : all).slice(0, 5);
         <h2 class="sec-title">Selected Work</h2>
         <span class="sec-rule"></span>
       </div>
-      <div class="projects">
-        {show.map((p, idx) => (
-          <a class="proj reveal" href={`/projects/${p.id}`}>
-            <div class="proj-top">
-              <div>
-                <span class="proj-index">P.{String(show.length - idx).padStart(2, '0')}</span>
-                <h3>{p.data.title}</h3>
-                {p.data.venue && <span class="venue">{p.data.venue}</span>}
-              </div>
-              <div class="titleblock">
-                {p.data.period && <div class="tb"><div class="tk">Period</div><div class="tv">{p.data.period}</div></div>}
-                {p.data.team && <div class="tb"><div class="tk">Team</div><div class="tv">{p.data.team}</div></div>}
-                {p.data.role && <div class="tb"><div class="tk">Role</div><div class="tv">{p.data.role}</div></div>}
-              </div>
+      <div class="carousel reveal" id="workCarousel">
+        <div class="carousel-track" id="workTrack">
+          {show.map((p, idx) => (
+            <div class="carousel-item">
+              <ProjectCard
+                href={`/projects/${p.id}`}
+                index={`P.${String(show.length - idx).padStart(2, '0')}`}
+                title={p.data.title}
+                summary={p.data.summary}
+                period={p.data.period}
+                team={p.data.team}
+                role={p.data.role}
+                cover={p.data.cover}
+              />
             </div>
-            <div class="proj-body">
-              <p>{p.data.summary}</p>
-              <div class="tags">
-                {p.data.tags.slice(0, 5).map((t, ti) => <span class={ti === 0 ? 'tag hi' : 'tag'}>{t}</span>)}
-              </div>
+          ))}
+        </div>
+
+        {show.length > 1 && (
+          <div class="carousel-controls">
+            <div class="carousel-count"><span id="workIdx">1</span> / {show.length}</div>
+            <div class="carousel-btns">
+              <button type="button" class="carousel-btn" id="workPrev" aria-label="Previous project">
+                <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+              </button>
+              <button type="button" class="carousel-btn" id="workNext" aria-label="Next project">
+                <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+              </button>
             </div>
-          </a>
-        ))}
+          </div>
+        )}
       </div>
       <div class="view-all reveal">
         <a class="btn" href="/projects">All projects <span class="arw">↗</span></a>
@@ -193,50 +202,113 @@ const show = (featured.length ? featured : all).slice(0, 5);
           <div class="list"><span>CNC machining</span><span>Laser cutting</span><span>3D printing</span><span>Manual machining</span><span>Soldering</span><span>Welding</span></div>
         </div>
       </div>
-      <div class="coursework reveal" style="margin-top:26px">
-        <span class="chip">CSWA — Certified SolidWorks Associate</span><span class="chip">Embedded Systems &amp; Robotics · e-Yantra, IIT Bombay</span><span class="chip">MATLAB Onramp</span><span class="chip">Simulink Onramp</span><span class="chip">Intro to C++</span>
-      </div>
     </section>
 
-    <!-- RECOGNITION -->
-    <section id="recognition">
+    <!-- CERTIFICATIONS -->
+    <section id="certifications">
       <div class="sec-head reveal">
         <span class="sec-no">05</span>
-        <h2 class="sec-title">Recognition</h2>
+        <h2 class="sec-title">Certifications</h2>
         <span class="sec-rule"></span>
       </div>
-      <div class="rec-grid">
-        <div class="card reveal">
-          <h4>Patents · Filed</h4>
-          <div class="patent"><div class="pt">An automated ergonogauge device for measuring three-dimensional spatial data</div><div class="pm">App. No. 202541029107 · Filed 27 Mar 2025 · <span class="stat">Under examination</span></div></div>
-          <div class="patent"><div class="pt">Orthodontic appliances to prevent tongue-thrusting habit</div><div class="pm">App. No. 202541032533 · Filed 02 Apr 2025 · <span class="stat">Under examination</span></div></div>
+      {site.certifications && site.certifications.length ? (
+        <div class="cert-grid">
+          {site.certifications.map((c) => {
+            const meta = [c.issuer, c.date].filter(Boolean).join(' · ');
+            return c.url ? (
+              <a class="cert-card reveal" href={c.url} target="_blank" rel="noopener">
+                <div class="cert-name">{c.name}</div>
+                {meta && <div class="cert-meta">{meta}</div>}
+                <span class="cert-link">View certificate <span class="arw">↗</span></span>
+              </a>
+            ) : (
+              <div class="cert-card reveal">
+                <div class="cert-name">{c.name}</div>
+                {meta && <div class="cert-meta">{meta}</div>}
+              </div>
+            );
+          })}
         </div>
-        <div class="card reveal">
-          <h4>Leadership</h4>
-          <ul class="lead-list">
-            <li><div class="lr">Vice-Captain — CSD Robocon NITK</div><div class="lo">Jul 2024 — May 2025</div><div class="ld">Led a 40-member team to ABU Robocon 2025; ran operations, treasury, fundraising, and procurement.</div></li>
-            <li><div class="lr">Co-Founder &amp; Lead — Team GNARLY</div><div class="lo">Sept 2023 — May 2025</div><div class="ld">Founded and led a 15-member combat robotics team through design, funding, and inter-university competition.</div></li>
-            <li><div class="lr">Media &amp; Web Head — CSD Robocon NITK</div><div class="lo">Jan 2023 — Jul 2024</div><div class="ld">Revamped the team's digital presence, redesigning websites and outreach platforms.</div></li>
-          </ul>
-        </div>
-        <div class="card reveal rec-span">
-          <h4>Achievements</h4>
-          <ul class="ach-list">
-            <li><span class="yr">'23·'24·'25</span><span><b>ABU Robocon national rounds</b> — qualified all three years, scoring 96 / 95 / 88 out of 100 in Robot Design Documentation.</span></li>
-            <li><span class="yr">2024</span><span><b>2nd runner-up, Robowars</b> — VIT Vellore Gravitas 2024, serving as primary robot driver in combat matches.</span></li>
-            <li><span class="yr">2024</span><span><b>Runners-up, Embaddethon 2024</b> (IEEE NITK) — computer vision and sensor fusion challenge.</span></li>
-            <li><span class="yr">2023</span><span><b>Semi-finalist, IIT Bombay International Robowars</b> — under-15 kg, TECHFEST 2023.</span></li>
-            <li><span class="yr">2023</span><span><b>Runners-up, Robowars</b> — Manipal TECHTATVA '23.</span></li>
-            <li><span class="yr">2022</span><span><b>Winner, Open Innovation Track</b> — Technica '22 national hackathon (ISTE-VIT).</span></li>
-          </ul>
-        </div>
+      ) : (
+        <div class="empty">No certifications yet. Add one in <b>/admin</b> → Site → Profile &amp; Contact.</div>
+      )}
+    </section>
+
+    <!-- PATENTS & PUBLICATIONS -->
+    <section id="patents">
+      <div class="sec-head reveal">
+        <span class="sec-no">06</span>
+        <h2 class="sec-title">Patents &amp; Publications</h2>
+        <span class="sec-rule"></span>
       </div>
+      {site.patents && site.patents.length ? (
+        <div class="patent-list">
+          {site.patents.map((p) => (
+            <div class="patent-block reveal">
+              <div class="pb-top">
+                {p.type && <span class="pb-type">{p.type}</span>}
+                {p.status && <span class="pb-status">{p.status}</span>}
+              </div>
+              <div class="pb-title">{p.title}</div>
+              {p.meta && <div class="pb-meta">{p.meta}</div>}
+              {p.note && <p class="pb-note">{p.note}</p>}
+              {p.link && <a class="pb-link" href={p.link} target="_blank" rel="noopener">View record <span class="arw">↗</span></a>}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="empty">Nothing here yet. Add a patent or publication in <b>/admin</b> → Site → Profile &amp; Contact.</div>
+      )}
+    </section>
+
+    <!-- LEADERSHIP -->
+    <section id="leadership">
+      <div class="sec-head reveal">
+        <span class="sec-no">07</span>
+        <h2 class="sec-title">Leadership</h2>
+        <span class="sec-rule"></span>
+      </div>
+      {site.leadership && site.leadership.length ? (
+        <div class="lead-grid">
+          {site.leadership.map((l) => (
+            <div class="lead-card reveal">
+              <div class="lc-role">{l.role}</div>
+              {l.period && <div class="lc-period">{l.period}</div>}
+              {l.description && <p class="lc-desc">{l.description}</p>}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="empty">No leadership roles yet. Add one in <b>/admin</b> → Site → Profile &amp; Contact.</div>
+      )}
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+    <section id="achievements">
+      <div class="sec-head reveal">
+        <span class="sec-no">08</span>
+        <h2 class="sec-title">Achievements</h2>
+        <span class="sec-rule"></span>
+      </div>
+      {site.achievements && site.achievements.length ? (
+        <div class="ach-grid">
+          {site.achievements.map((a) => (
+            <div class="ach-card reveal">
+              {a.year && <span class="ac-year">{a.year}</span>}
+              <div class="ac-title">{a.title}</div>
+              {a.description && <p class="ac-desc">{a.description}</p>}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="empty">No achievements yet. Add one in <b>/admin</b> → Site → Profile &amp; Contact.</div>
+      )}
     </section>
 
     <!-- CONTACT -->
     <section id="contact">
       <div class="contact-box reveal">
-        <span class="eyebrow ce" style="justify-content:center">06 · Contact</span>
+        <span class="eyebrow ce" style="justify-content:center">09 · Contact</span>
         <h2>Let's build something<br />that <em>works when it matters.</em></h2>
         <p>Open to graduate research collaborations and robotics conversations. The fastest way to reach me is email.</p>
         <div class="contact-links">
@@ -261,6 +333,38 @@ const show = (featured.length ? featured : all).slice(0, 5);
     </section>
 
   </div>
+
+  <script>
+    // Selected Work carousel
+    (function () {
+      const track = document.getElementById('workTrack');
+      const prev = document.getElementById('workPrev');
+      const next = document.getElementById('workNext');
+      const idxEl = document.getElementById('workIdx');
+      if (!track || !prev || !next || !idxEl) return;
+
+      const items = Array.from(track.children);
+
+      function cardStep() {
+        if (items.length < 2) return items[0] ? items[0].getBoundingClientRect().width : 0;
+        return items[1].offsetLeft - items[0].offsetLeft;
+      }
+
+      function update() {
+        const step = cardStep();
+        const current = step ? Math.round(track.scrollLeft / step) : 0;
+        idxEl.textContent = String(Math.min(items.length, current + 1));
+        prev.disabled = track.scrollLeft <= 4;
+        next.disabled = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+      }
+
+      prev.addEventListener('click', () => track.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
+      next.addEventListener('click', () => track.scrollBy({ left: cardStep(), behavior: 'smooth' }));
+      track.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    })();
+  </script>
 
   <script>
     // Dot-scan portrait: sample the photo into blue dots, reveal the real image on hover/tap.

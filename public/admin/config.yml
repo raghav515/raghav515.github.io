@@ -120,5 +120,45 @@ collections:
           - { label: "Phone", name: "phone", widget: "string", required: false }
           - { label: "GitHub URL", name: "github", widget: "string", required: false }
           - { label: "LinkedIn URL", name: "linkedin", widget: "string", required: false }
+          - label: "Certifications"
+            name: "certifications"
+            widget: "list"
+            required: false
+            summary: "{{fields.name}}"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Issuer", name: "issuer", widget: "string", required: false }
+              - { label: "Date", name: "date", widget: "string", required: false, hint: "e.g. Jun 2024 — free text" }
+              - { label: "Certificate link", name: "url", widget: "string", required: false, hint: "Link to the certificate / verification page" }
+          - label: "Patents & Publications"
+            name: "patents"
+            widget: "list"
+            required: false
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Type", name: "type", widget: "select", options: ["Patent", "Publication"], default: "Patent" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Meta line", name: "meta", widget: "string", required: false, hint: "e.g. App. No. ... · Filed ... (patents) or journal / venue citation (publications)" }
+              - { label: "Status", name: "status", widget: "string", required: false, hint: "e.g. Under examination, Granted, Published" }
+              - { label: "Annotation", name: "note", widget: "text", required: false, hint: "1-2 line note on why this matters" }
+              - { label: "Link", name: "link", widget: "string", required: false, hint: "Optional URL — public patent record, DOI, journal page, etc." }
+          - label: "Leadership"
+            name: "leadership"
+            widget: "list"
+            required: false
+            summary: "{{fields.role}}"
+            fields:
+              - { label: "Role", name: "role", widget: "string" }
+              - { label: "Period", name: "period", widget: "string", required: false }
+              - { label: "Description", name: "description", widget: "text", required: false }
+          - label: "Achievements"
+            name: "achievements"
+            widget: "list"
+            required: false
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "Year", name: "year", widget: "string", required: false }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Description", name: "description", widget: "text", required: false }
 
 
