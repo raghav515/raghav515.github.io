@@ -12,7 +12,7 @@ tags:
   - SolidWorks
   - Altium
   - CNC · additive · PCB fab
-cover: /uploads/istockphoto-537229032-612x612.jpg
+cover: ""
 featured: true
 order: 4
 date: 2024-07-01
