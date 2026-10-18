@@ -1,12 +1,20 @@
 ---
-title: "Pharma Bot — Autonomous Delivery"
-venue: "e-Yantra, IIT Bombay · Top 16 nationally"
-period: "2022–2023"
-role: "Team Lead"
+title: Pharma Bot — Autonomous Delivery
+venue: e-Yantra, IIT Bombay · Top 16 nationally
+period: 2022–2023
+role: Team Lead
 team: "4"
-summary: "An autonomous medicine-delivery robot using OpenCV perception, ArUco/QR localization, and a CoppeliaSim digital twin. Top 16 nationally."
-tags: ["OpenCV · ArUco", "Digital twin (CoppeliaSim)", "Pose estimation", "Path planning", "Task scheduling"]
-cover: "/uploads/project-placeholder.webp"
+summary: An autonomous medicine-delivery robot using OpenCV perception, ArUco/QR
+  localization, and a CoppeliaSim digital twin. Top 16 nationally.
+tags:
+  - OpenCV · ArUco
+  - Digital twin (CoppeliaSim)
+  - Pose estimation
+  - Path planning
+  - Task scheduling
+cover: /uploads/eyrc.jpg
+gallery:
+  - src: /uploads/eyrc.jpg
 featured: true
 order: 1
 date: 2023-06-15
