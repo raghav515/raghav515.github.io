@@ -45,4 +45,16 @@ const journey = defineCollection({
   }),
 });
 
-export const collections = { projects, blog, journey };
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    showInNav: z.boolean().default(false),
+    navLabel: z.string().optional(),
+    navOrder: z.number().default(0),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { projects, blog, journey, pages };

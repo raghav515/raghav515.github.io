@@ -1,18 +1,12 @@
 ---
-title: Autonomous Mobile Robots for Object Manipulation
-venue: ABU Robocon 2024 · NITK Surathkal
-period: 2023–2024
-role: Team Lead
+title: "Autonomous Mobile Robots for Object Manipulation"
+venue: "ABU Robocon 2024 · NITK Surathkal"
+period: "2023–2024"
+role: "Team Lead"
 team: "32"
-summary: Four-wheel holonomic robots that navigate waypoints, pick conduits,
-  kick footballs, and sort objects autonomously using computer vision.
-tags:
-  - Computer vision
-  - Waypoint navigation
-  - SolidWorks
-  - Altium
-  - CNC · additive · PCB fab
-cover: ""
+summary: "Four-wheel holonomic robots that navigate waypoints, pick conduits, kick footballs, and sort objects autonomously using computer vision."
+tags: ["Computer vision", "Waypoint navigation", "SolidWorks", "Altium", "CNC · additive · PCB fab"]
+cover: "/uploads/project-placeholder.webp"
 featured: true
 order: 4
 date: 2024-07-01

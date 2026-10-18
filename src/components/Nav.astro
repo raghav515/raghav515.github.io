@@ -1,19 +1,40 @@
 ---
-const links = [
-  { href: '/projects', label: 'Work' },
+import { getCollection } from 'astro:content';
+
+const builtIn = [
+  { href: '/projects', label: 'Projects' },
   { href: '/blog', label: 'Writing' },
   { href: '/journey', label: 'Journey' },
   { href: '/bench', label: 'Bench' },
+];
+
+const customPages = (await getCollection('pages', ({ data }) => !data.draft && data.showInNav))
+  .sort((a, b) => a.data.navOrder - b.data.navOrder)
+  .map((p) => ({ href: `/${p.id}`, label: p.data.navLabel || p.data.title }));
+
+const links = [
+  ...builtIn,
+  ...customPages,
   { href: '/#about', label: 'About' },
   { href: '/#contact', label: 'Contact' },
 ];
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isHome = path === '/';
+const isCurrent = (href: string) => !href.includes('#') && (path === href || path.startsWith(href + '/'));
 ---
 <nav class="dock" id="dock" aria-label="Primary">
-  <a class="brand" href="/" aria-label="Home">
+  <a class="brand" href="/" aria-label="Home" aria-current={isHome ? 'page' : undefined}>
     <span class="monogram">RJ</span>
   </a>
   <div class="dock-links">
-    {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    {links.map((l) => (
+      <a
+        href={l.href}
+        data-section={l.href.startsWith('/#') ? l.href.slice(2) : undefined}
+        aria-current={isCurrent(l.href) ? 'page' : undefined}
+      >{l.label}</a>
+    ))}
   </div>
 </nav>
 
@@ -35,5 +56,42 @@ const links = [
     updateMask();
     dock.addEventListener('scroll', updateMask, { passive: true });
     window.addEventListener('resize', updateMask);
+
+    // Keep the current page's link centred when the dock is scrollable (phones).
+    const centreActive = () => {
+      const active = dock.querySelector('.dock-links a[aria-current="page"], .dock-links a.in-view');
+      if (active instanceof HTMLElement) {
+        dock.scrollLeft = active.offsetLeft - (dock.clientWidth - active.offsetWidth) / 2;
+      }
+    };
+    centreActive();
+
+    // Homepage only: highlight About / Contact while their section is on screen.
+    const sectionLinks = Array.from(dock.querySelectorAll('.dock-links a[data-section]'));
+    if (location.pathname === '/' && sectionLinks.length && 'IntersectionObserver' in window) {
+      const visible = new Set();
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) visible.add(e.target.id);
+            else visible.delete(e.target.id);
+          });
+          let current = null;
+          sectionLinks.forEach((a) => {
+            const on = visible.has(a.getAttribute('data-section'));
+            a.classList.toggle('in-view', on);
+            if (on) current = a;
+          });
+          if (current instanceof HTMLElement) {
+            dock.scrollTo({ left: current.offsetLeft - (dock.clientWidth - current.offsetWidth) / 2, behavior: 'smooth' });
+          }
+        },
+        { rootMargin: '-35% 0px -35% 0px' }
+      );
+      sectionLinks.forEach((a) => {
+        const sec = document.getElementById(a.getAttribute('data-section'));
+        if (sec) io.observe(sec);
+      });
+    }
   }
 </script>

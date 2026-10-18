@@ -18,10 +18,11 @@ const fmt = (dt) => dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'sh
       {entries.length ? (
         <div class="index-list timeline">
           {entries.map((e) => (
-            <a class="index-row reveal" href={`/journey/${e.id}`}>
-              <div class="rd">{e.data.period || fmt(e.data.date)}{e.data.location && <Fragment><br />{e.data.location}</Fragment>}</div>
+            <a class={e.data.cover ? 'index-row reveal has-cover' : 'index-row reveal no-cover'} href={`/journey/${e.id}`}>
+              {e.data.cover && <img class="rthumb" src={e.data.cover} alt="" loading="lazy" />}
               <div>
                 <div class="rt">{e.data.title}</div>
+                <div class="rdate">{e.data.period || fmt(e.data.date)}{e.data.location && ` · ${e.data.location}`}</div>
               </div>
               <div class="arw">↗</div>
             </a>

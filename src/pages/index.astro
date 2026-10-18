@@ -9,7 +9,15 @@ const all = (await getCollection('projects')).sort(
     ((b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0))
 );
 const featured = all.filter((p) => p.data.featured);
-const show = (featured.length ? featured : all).slice(0, 5);
+const show = (featured.length ? featured : all).slice(0, 8);
+
+// **bold** -> <strong>, everything else HTML-escaped
+const richText = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 ---
 <Base title="Raghavendra Jadhav — Mechanical & Robotics Engineer">
   <div class="wrap">
@@ -86,13 +94,17 @@ const show = (featured.length ? featured : all).slice(0, 5);
       </div>
       <div class="about-grid">
         <div class="about-body reveal">
-          <p>I hold a <strong>B.Tech in Mechanical Engineering</strong> from NIT Karnataka, Surathkal, paired with a minor in <strong>Electronics &amp; Communication</strong> — a combination that lets me move fluently between a robot's structure, its custom electronics, and its control loops.</p>
-          <p>Over four years I led teams of up to <strong>40 people</strong> to take competition robots from a blank page to the arena: four-wheel holonomic drives, flywheel launchers, combat weapon systems, and the custom PCBs and encoder–IMU odometry that make them autonomous. Two of those efforts became <strong>filed patents</strong>.</p>
-          <p>Today I apply that same end-to-end discipline to large-scale infrastructure as a site engineer at BPCL, and I'm working toward <strong>graduate research in robotics</strong>.</p>
+          {site.about.map((para) => <p set:html={richText(para)} />)}
         </div>
         <div class="spec-block reveal">
           <div class="spec-row"><div class="sk">Degree</div><div class="sv">B.Tech, Mechanical Engineering<small>Minor · Electronics &amp; Communication</small></div></div>
-          <div class="spec-row"><div class="sk">Institute</div><div class="sv">NIT Karnataka, Surathkal<small>Dec 2021 — May 2025</small></div></div>
+          <div class="spec-row has-logo">
+            <div>
+              <div class="sk">Institute</div>
+              <div class="sv"><a href="https://www.nitk.ac.in" target="_blank" rel="noopener">NIT Karnataka, Surathkal</a><small>Dec 2021 — May 2025</small></div>
+            </div>
+            <img class="spec-logo" src="/uploads/logo-nitk.webp" alt="NITK emblem" width="360" height="340" loading="lazy" />
+          </div>
         </div>
       </div>
     </section>
@@ -101,7 +113,7 @@ const show = (featured.length ? featured : all).slice(0, 5);
     <section id="work">
       <div class="sec-head reveal">
         <span class="sec-no">02</span>
-        <h2 class="sec-title">Selected Work</h2>
+        <h2 class="sec-title">Selected Projects</h2>
         <span class="sec-rule"></span>
       </div>
       <div class="carousel reveal" id="workCarousel">
@@ -149,31 +161,25 @@ const show = (featured.length ? featured : all).slice(0, 5);
         <span class="sec-rule"></span>
       </div>
       <div class="exp">
-        <div class="exp-item reveal">
-          <div class="exp-when">Jun 2025 — Present<div class="st"><i class="dot live"></i>Current</div></div>
-          <div class="exp-role">
-            <h3>Assistant Executive · Site Engineer</h3>
-            <div class="org">Bharat Petroleum Corporation Ltd · Navi Mumbai</div>
-            <ul>
-              <li>Coordinate mechanical installation, equipment integration, and construction for large-scale LPG infrastructure, ensuring compliance with <b>OISD standards</b> and project schedules.</li>
-              <li>Manage design, statutory approvals, and multidisciplinary coordination for <b>four railway overbridges</b> across consultants, contractors, and Central Railways.</li>
-              <li>Execute equipment installation, hydrostatic and pneumatic testing, instrumentation hot-loop testing, and pre-commissioning for <b>cryogenic LPG facilities</b>.</li>
-              <li>Contributing to a terminal expansion that lifts handling capacity from <b>1.2 to 3.0 MMTPA</b>.</li>
-            </ul>
+        {site.experience.map((e) => (
+          <div class="exp-item reveal">
+            <div class="exp-when">
+              {e.period}
+              {e.current && <div class="st"><i class="dot live"></i>Current</div>}
+              {e.logo && <span class="exp-logo"><img src={e.logo} alt={`${e.org} logo`} loading="lazy" /></span>}
+            </div>
+            <div class="exp-role">
+              <h3>{e.role}</h3>
+              <div class="org">
+                {e.orgUrl ? <a href={e.orgUrl} target="_blank" rel="noopener">{e.org}</a> : e.org}
+                {e.location && ` · ${e.location}`}
+              </div>
+              <div class="exp-text">
+                {e.paragraphs.map((t) => <p set:html={richText(t)} />)}
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="exp-item reveal">
-          <div class="exp-when">May 2024 — Jul 2024</div>
-          <div class="exp-role">
-            <h3>Manufacturing / Industrial Engineering Intern</h3>
-            <div class="org">Bajaj Auto Limited · Pune</div>
-            <ul>
-              <li>Analysed assembly-line workflow and task sequencing across four motorcycle models to locate bottlenecks.</li>
-              <li>Performed time studies and line balancing, redistributing 9.25 minutes of work content across conveyor systems.</li>
-              <li>Increased throughput from <b>360 to 546 vehicles per shift — a 51% improvement</b> — through task reallocation and workload balancing.</li>
-            </ul>
-          </div>
-        </div>
+        ))}
       </div>
     </section>
 
@@ -195,7 +201,7 @@ const show = (featured.length ? featured : all).slice(0, 5);
         </div>
         <div class="skill-cat">
           <div class="ch"><span class="cno">C</span><span class="cn">Programming &amp; Control</span></div>
-          <div class="list"><span>Python</span><span>C / C++</span><span>MATLAB &amp; Simulink</span><span>Bash</span><span>Cloudflared</span></div>
+          <div class="list"><span>Python</span><span>C / C++</span><span>ROS / ROS2</span><span>MATLAB &amp; Simulink</span><span>Bash</span><span>Cloudflared</span></div>
         </div>
         <div class="skill-cat">
           <div class="ch"><span class="cno">D</span><span class="cn">Fabrication</span></div>
@@ -213,19 +219,14 @@ const show = (featured.length ? featured : all).slice(0, 5);
       </div>
       {site.certifications && site.certifications.length ? (
         <div class="cert-grid">
-          {site.certifications.map((c) => {
+          {site.certifications.map((c, i) => {
             const meta = [c.issuer, c.date].filter(Boolean).join(' · ');
-            return c.url ? (
-              <a class="cert-card reveal" href={c.url} target="_blank" rel="noopener">
+            return (
+              <a class="cert-card reveal" href={`/certificates#${i}`}>
                 <div class="cert-name">{c.name}</div>
                 {meta && <div class="cert-meta">{meta}</div>}
-                <span class="cert-link">View certificate <span class="arw">↗</span></span>
+                <span class="cert-link">View credential <span class="arw">↗</span></span>
               </a>
-            ) : (
-              <div class="cert-card reveal">
-                <div class="cert-name">{c.name}</div>
-                {meta && <div class="cert-meta">{meta}</div>}
-              </div>
             );
           })}
         </div>
@@ -309,7 +310,7 @@ const show = (featured.length ? featured : all).slice(0, 5);
     <section id="contact">
       <div class="contact-box reveal">
         <span class="eyebrow ce" style="justify-content:center">09 · Contact</span>
-        <h2>Let's build something<br />that <em>works when it matters.</em></h2>
+        <h2>{site.contactQuote.line1}<br />{site.contactQuote.line2} <em>{site.contactQuote.accent}</em></h2>
         <p>Open to graduate research collaborations and robotics conversations. The fastest way to reach me is email.</p>
         <div class="contact-links">
           <a class="clink" href={`mailto:${site.email}`}>

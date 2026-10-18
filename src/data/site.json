@@ -1,42 +1,131 @@
 {
+  "portrait": "/uploads/photo.webp",
+  "favicon": "",
+  "resume": "",
+  "heroTagline": "I'm a different breed of creator: I can't stop at the idea. Give me a blank page and a problem, and I'll build you the answer. Robowars arenas, Robocon fields, cryogenic LPG terminals. The settings change; the thrill doesn't.",
+  "email": "rjadhav4103@gmail.com",
+  "phone": "+91 99670 46515",
   "github": "https://github.com/raghav515",
-  "achievements": [
+  "linkedin": "https://www.linkedin.com/in/raghavendrajadhav/",
+  "availability": "Site Engineer @ BPCL",
+  "about": [
+    "Mechanical engineer by degree. Electronics nerd by minor. Builder by habit. At NIT Karnataka I learned to design the frame, lay out the board, and write the code for the same machine.",
+    "Qualified for ABU Robocon nationals three years running. Co-founded NITK's first combat robotics team and built a 4WD 15 kg bot with a vertical bar spinner. Led 40 people as Vice-Captain.",
+    "Two patents filed with Dr. Khyati Verma, both in assistive and biomedical devices. And a day job at BPCL, where a USD 184.84M LPG terminal is growing from 1.2 to 3.0 MMTPA and I get to help build it."
+  ],
+  "contactQuote": {
+    "line1": "The best things I've built",
+    "line2": "came after",
+    "accent": "the things that broke."
+  },
+  "experience": [
     {
-      "year": "'23·'24·'25",
-      "title": "ABU Robocon national rounds",
-      "description": "Qualified all three years, scoring 96 / 95 / 88 out of 100 in Robot Design Documentation."
+      "role": "Assistant Executive · Site Engineer",
+      "org": "Bharat Petroleum Corporation Ltd",
+      "location": "Navi Mumbai",
+      "orgUrl": "https://www.bharatpetroleum.in",
+      "logo": "/uploads/logo-bpcl.svg",
+      "period": "Jun 2025 — Present",
+      "current": true,
+      "paragraphs": [
+        "I'm part of BPCL's **USD 184.84M refrigerated LPG import terminal expansion**, coordinating multidisciplinary engineering and mechanical construction to take the terminal from **1.2 to 3.0 MMTPA**. That covers equipment installation, hydrostatic and pneumatic testing, instrument hot-loop testing, and pre-commissioning for the cryogenic facilities, all in line with **OISD standards** and project schedules.",
+        "I also manage the railway overbridge work: design, statutory approvals, fabrication, installation, testing, and pre-commissioning of a **USD 3.11M package**, with coordination covering **four railway overbridges** across Indian Railways, Central Railways, consultants, contractors, and BPCL stakeholders."
+      ]
     },
     {
-      "year": "2024",
-      "title": "2nd runner-up, Robowars",
-      "description": "VIT Vellore Gravitas 2024, serving as primary robot driver in combat matches."
+      "role": "Summer Intern · Manufacturing Division",
+      "org": "Bajaj Auto Limited",
+      "location": "Pune",
+      "orgUrl": "https://www.bajajauto.com",
+      "logo": "/uploads/logo-bajaj-auto.svg",
+      "period": "May 2024 — Jul 2024",
+      "current": false,
+      "paragraphs": [
+        "In the manufacturing division at Bajaj Auto I studied assembly-line workflow and task sequencing across four motorcycle models, using time studies and line balancing to find the bottlenecks. By redistributing 9.25 minutes of work content across four conveyor systems, throughput went from **360 to 546 vehicles per shift, a 51% improvement**."
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Modern Robotics: Robot Kinematics",
+      "issuer": "Northwestern University",
+      "date": "Oct 2026",
+      "url": "",
+      "pdf": ""
     },
     {
-      "year": "2024",
-      "title": "Runners-up, Embaddethon 2024",
-      "description": "IEEE NITK — computer vision and sensor fusion challenge."
+      "name": "Aerial Robotics",
+      "issuer": "University of Pennsylvania",
+      "date": "Sep 2026",
+      "url": "",
+      "pdf": ""
     },
     {
-      "year": "2023",
-      "title": "Semi-finalist, IIT Bombay International Robowars",
-      "description": "Under-15 kg, TECHFEST 2023."
+      "name": "Basics of Embedded Systems and Robotics",
+      "issuer": "e-Yantra, IIT Bombay",
+      "date": "Jul 2023",
+      "url": "",
+      "pdf": ""
     },
     {
-      "year": "2023",
-      "title": "Runners-up, Robowars",
-      "description": "Manipal TECHTATVA '23."
+      "name": "Data Structures in C++",
+      "issuer": "Coding Ninjas",
+      "date": "Nov 2022",
+      "url": "",
+      "pdf": ""
     },
     {
-      "year": "2022",
-      "title": "Winner, Open Innovation Track",
-      "description": "Technica '22 national hackathon (ISTE-VIT)."
+      "name": "CSWA — Certified SolidWorks Associate",
+      "issuer": "Dassault Systèmes",
+      "date": "Sep 2022",
+      "url": "",
+      "pdf": ""
+    },
+    {
+      "name": "MATLAB Onramp",
+      "issuer": "MathWorks",
+      "date": "",
+      "url": "",
+      "pdf": ""
+    },
+    {
+      "name": "Simulink Onramp",
+      "issuer": "MathWorks",
+      "date": "",
+      "url": "",
+      "pdf": ""
+    },
+    {
+      "name": "Intro to C++",
+      "issuer": "",
+      "date": "",
+      "url": "",
+      "pdf": ""
+    }
+  ],
+  "patents": [
+    {
+      "type": "Patent",
+      "title": "An automated ergonogauge device for measuring three-dimensional spatial data",
+      "meta": "App. No. 202541029107 · Filed 27 Mar 2025",
+      "status": "Under examination",
+      "note": "ErgonoGauge: an automated system for measuring the 3D orientation of the occlusal plane, combining an adjustable mechanical structure with BNO055 orientation sensors, Arduino-based data acquisition, and a graphical interface reporting pitch, roll, and yaw.",
+      "link": ""
+    },
+    {
+      "type": "Patent",
+      "title": "Orthodontic appliances to prevent tongue-thrusting habit",
+      "meta": "App. No. 202541032533 · Filed 02 Apr 2025",
+      "status": "Under examination",
+      "note": "DynaThrust: a compact orthodontic device that gives feedback against tongue thrust through a compliant mechanism — a deformable elastomeric element with 3D-printed structure — with its mechanical response evaluated in simulation.",
+      "link": ""
     }
   ],
   "leadership": [
     {
       "role": "Vice-Captain — CSD Robocon NITK",
       "period": "Jul 2024 — May 2025",
-      "description": "Led a 40-member team to ABU Robocon 2025; ran operations, treasury, fundraising, and procurement."
+      "description": "Led a 40-member team to the international ABU Robocon 2025; managed operations and finances, fundraising, treasury, procurement, and scheduling."
     },
     {
       "role": "Co-Founder & Lead — Team GNARLY",
@@ -46,64 +135,39 @@
     {
       "role": "Media & Web Head — CSD Robocon NITK",
       "period": "Jan 2023 — Jul 2024",
-      "description": "Revamped the team's digital presence, redesigning websites and outreach platforms."
+      "description": "Revamped the team's digital presence by redesigning websites and outreach platforms."
     }
   ],
-  "patents": [
+  "achievements": [
     {
-      "type": "Patent",
-      "title": "An automated ergonogauge device for measuring three-dimensional spatial data",
-      "meta": "App. No. 202541029107 · Filed 27 Mar 2025",
-      "status": "Under examination",
-      "note": "",
-      "link": ""
+      "year": "'23·'24·'25",
+      "title": "ABU Robocon national rounds",
+      "description": "Qualified all three years, scoring 96 / 95 / 88 out of 100 in Robot Design Documentation."
     },
     {
-      "type": "Patent",
-      "title": "Orthodontic appliances to prevent tongue-thrusting habit",
-      "meta": "App. No. 202541032533 · Filed 02 Apr 2025",
-      "status": "Under examination",
-      "note": "",
-      "link": ""
+      "year": "2024",
+      "title": "3rd place, Robowars",
+      "description": "Gravitas 2024, VIT Vellore — primary robot driver in combat matches."
+    },
+    {
+      "year": "2024",
+      "title": "Runners-up, Embaddethon 2024",
+      "description": "IEEE NITK — computer vision and sensor fusion challenge."
+    },
+    {
+      "year": "2023",
+      "title": "Semi-finalist, IIT Bombay International Robowars",
+      "description": "Under-15 kg category, TECHFEST'23."
+    },
+    {
+      "year": "2023",
+      "title": "Runners-up, Robowars",
+      "description": "TECHTATVA'23, Manipal."
+    },
+    {
+      "year": "2022",
+      "title": "Winner, Open Innovation Track",
+      "description": "Technica'22, a national hackathon hosted by ISTE-VIT."
     }
-  ],
-  "resume": "/uploads/ms_raghavendra_resume.pdf",
-  "phone": "+91 99670 46515",
-  "heroTagline": "I build robotic systems end to end — the structure, the circuit boards, and the control that ties them together. From combat arenas and Robocon fields to cryogenic LPG terminals.",
-  "certifications": [
-    {
-      "name": "CSWA — Certified SolidWorks Associate",
-      "issuer": "Dassault Systèmes",
-      "date": "",
-      "url": ""
-    },
-    {
-      "name": "Embedded Systems & Robotics",
-      "issuer": "e-Yantra, IIT Bombay",
-      "date": "",
-      "url": ""
-    },
-    {
-      "name": "MATLAB Onramp",
-      "issuer": "MathWorks",
-      "date": "",
-      "url": ""
-    },
-    {
-      "name": "Simulink Onramp",
-      "issuer": "MathWorks",
-      "date": "",
-      "url": ""
-    },
-    {
-      "name": "Intro to C++",
-      "issuer": "Coding Ninjas",
-      "date": "",
-      "url": ""
-    }
-  ],
-  "availability": "Site Engineer @ BPCL",
-  "portrait": "/uploads/professional-bharat-petroleum-portrait.png",
-  "email": "rjadhav4103@gmail.com",
-  "linkedin": "https://www.linkedin.com/in/raghavendrajadhav/"
+  ]
 }

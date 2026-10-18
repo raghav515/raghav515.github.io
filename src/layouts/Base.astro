@@ -10,6 +10,7 @@ const {
 } = Astro.props;
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import site from '../data/site.json';
 ---
 <!doctype html>
 <html lang="en">
@@ -18,7 +19,7 @@ import Footer from '../components/Footer.astro';
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href={site.favicon || '/favicon.svg'} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -93,7 +94,7 @@ import Footer from '../components/Footer.astro';
       document.addEventListener('click', (e) => {
         const t = e.target;
         if (!(t instanceof HTMLImageElement)) return;
-        if (!t.closest('.gallery-grid')) return;
+        if (!t.closest('.gallery-grid, .gcar')) return;
         const o = document.createElement('div');
         o.className = 'lb-overlay';
         const big = document.createElement('img');

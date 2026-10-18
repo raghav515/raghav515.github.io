@@ -18,10 +18,11 @@ const fmt = (dt) => dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'sh
       {posts.length ? (
         <div class="index-list">
           {posts.map((p) => (
-            <a class="index-row reveal" href={`/blog/${p.id}`}>
-              <div class="rd">{fmt(p.data.date)}</div>
+            <a class={p.data.cover ? 'index-row reveal has-cover' : 'index-row reveal no-cover'} href={`/blog/${p.id}`}>
+              {p.data.cover && <img class="rthumb" src={p.data.cover} alt="" loading="lazy" />}
               <div>
                 <div class="rt">{p.data.title}</div>
+                <div class="rdate">{fmt(p.data.date)}</div>
                 {p.data.excerpt && <div class="re">{p.data.excerpt}</div>}
                 {p.data.tags && p.data.tags.length > 0 && (
                   <div class="rtags">{p.data.tags.map((t) => <span class="tag">{t}</span>)}</div>

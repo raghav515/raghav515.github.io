@@ -14,7 +14,7 @@ const d = entry.data;
 <Base title={`${d.title} — Raghavendra Jadhav`} description={d.summary}>
   <div class="wrap article">
     <header class="page-hero" style="padding-bottom:0">
-      <a class="back-link" href="/projects"><span class="a">←</span> All work</a>
+      <a class="back-link" href="/projects"><span class="a">←</span> All projects</a>
     </header>
     <div class="article-head">
       <div class="article-meta">
@@ -31,20 +31,58 @@ const d = entry.data;
         </div>
       )}
     </div>
-    {d.cover && <div class="cover"><img src={d.cover} alt={d.title} /></div>}
-    <article class="prose"><Content /></article>
-    {d.gallery && d.gallery.length > 0 && (
-      <div class="gallery">
-        <div class="gh">Gallery</div>
-        <div class="gallery-grid">
+    {d.gallery && d.gallery.length > 0 ? (
+      <div class="gcar" data-gcar>
+        <div class="gcar-track">
           {d.gallery.map((g) => (
-            <figure>
+            <figure class="gcar-slide">
               <img src={g.src} alt={g.caption || d.title} loading="lazy" />
               {g.caption && <figcaption>{g.caption}</figcaption>}
             </figure>
           ))}
         </div>
+        {d.gallery.length > 1 && (
+          <div class="carousel-controls">
+            <div class="carousel-count"><span data-gcar-idx>1</span> / {d.gallery.length}</div>
+            <div class="carousel-btns">
+              <button type="button" class="carousel-btn" data-gcar-prev aria-label="Previous photo">
+                <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+              </button>
+              <button type="button" class="carousel-btn" data-gcar-next aria-label="Next photo">
+                <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+    ) : (
+      d.cover && <div class="cover"><img src={d.cover} alt={d.title} /></div>
     )}
+    <article class="prose"><Content /></article>
   </div>
 </Base>
+
+<script>
+  document.querySelectorAll('[data-gcar]').forEach((root) => {
+    const track = root.querySelector('.gcar-track');
+    const prev = root.querySelector('[data-gcar-prev]');
+    const next = root.querySelector('[data-gcar-next]');
+    const idx = root.querySelector('[data-gcar-idx]');
+    if (!track) return;
+    const count = track.children.length;
+    const width = () => track.clientWidth || 1;
+
+    function update() {
+      const i = Math.min(count - 1, Math.round(track.scrollLeft / width()));
+      if (idx) idx.textContent = String(i + 1);
+      if (prev) prev.disabled = i <= 0;
+      if (next) next.disabled = i >= count - 1;
+    }
+
+    prev && prev.addEventListener('click', () => track.scrollBy({ left: -width(), behavior: 'smooth' }));
+    next && next.addEventListener('click', () => track.scrollBy({ left: width(), behavior: 'smooth' }));
+    track.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  });
+</script>

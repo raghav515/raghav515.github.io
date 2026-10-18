@@ -56,8 +56,8 @@ collections:
       - { label: "Team size", name: "team", widget: "string", required: false }
       - { label: "Summary (shown on cards)", name: "summary", widget: "text" }
       - { label: "Tags", name: "tags", widget: "list", required: false, hint: "First tag is highlighted" }
-      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false }
-      - label: "Gallery"
+      - { label: "Homepage / card photo", name: "cover", widget: "image", required: false, choose_url: false, hint: "The one photo shown on the project's card (homepage and Projects list). Pick any photo, including one already in the gallery." }
+      - label: "Gallery (carousel on the project page)"
         name: "gallery"
         widget: "list"
         required: false
@@ -83,7 +83,7 @@ collections:
       - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
       - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
       - { label: "Tags", name: "tags", widget: "list", required: false }
-      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false }
+      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false, hint: "Optional. Shown beside the post on the Writing list and at the top of the post. Leave empty for a text-only row." }
       - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -100,7 +100,24 @@ collections:
       - { label: "Date", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
       - { label: "Period label", name: "period", widget: "string", required: false, hint: "e.g. 2023 (shown instead of the date)" }
       - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false }
+      - { label: "Cover image", name: "cover", widget: "image", required: false, choose_url: false, hint: "Optional. Shown beside the entry on the Journey list and at the top of the entry. Leave empty for a text-only row." }
+      - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  # ----------------- EXTRA PAGES -----------------
+  - name: "pages"
+    label: "Pages"
+    label_singular: "Page"
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string", hint: "Also used as the page's URL — e.g. \"Testimonials\" becomes yoursite.com/testimonials" }
+      - { label: "Description", name: "description", widget: "text", required: false, hint: "For search engines / link previews" }
+      - { label: "Show in navbar", name: "showInNav", widget: "boolean", default: false }
+      - { label: "Navbar label", name: "navLabel", widget: "string", required: false, hint: "Shown in the nav bar if blank, falls back to the title" }
+      - { label: "Navbar position", name: "navOrder", widget: "number", default: 0, value_type: "int", hint: "Lower numbers appear first among extra pages" }
       - { label: "Draft (hide from site)", name: "draft", widget: "boolean", default: false }
       - { label: "Body", name: "body", widget: "markdown" }
 
@@ -113,6 +130,7 @@ collections:
         file: "src/data/site.json"
         fields:
           - { label: "Portrait photo", name: "portrait", widget: "image", required: false, choose_url: false, hint: "Your homepage headshot. Portrait, 600px+." }
+          - { label: "Favicon", name: "favicon", widget: "image", required: false, choose_url: false, hint: "Browser tab icon. Square image (SVG, PNG, or ICO) works best, e.g. 512x512." }
           - { label: "Resume (PDF)", name: "resume", widget: "file", required: false, choose_url: false, hint: "Powers the hero's download button." }
           - { label: "Hero tagline", name: "heroTagline", widget: "text", required: false }
           - { label: "Availability line", name: "availability", widget: "string", required: false, hint: "Shown next to the live dot in the hero" }
@@ -120,6 +138,29 @@ collections:
           - { label: "Phone", name: "phone", widget: "string", required: false }
           - { label: "GitHub URL", name: "github", widget: "string", required: false }
           - { label: "LinkedIn URL", name: "linkedin", widget: "string", required: false }
+          - { label: "Profile paragraphs", name: "about", widget: "list", field: { label: "Paragraph", name: "text", widget: "text" }, hint: "One paragraph per item. Wrap words in **double asterisks** to bold them." }
+          - label: "Contact quote"
+            name: "contactQuote"
+            widget: "object"
+            hint: "The big heading in the Contact section"
+            fields:
+              - { label: "Line 1", name: "line1", widget: "string", hint: "Plain text, first line" }
+              - { label: "Line 2 (plain lead-in)", name: "line2", widget: "string", required: false, hint: "Plain text before the highlighted part, e.g. \"that\"" }
+              - { label: "Highlighted phrase", name: "accent", widget: "string", hint: "Shown in blue italics" }
+          - label: "Experience"
+            name: "experience"
+            widget: "list"
+            required: false
+            summary: "{{fields.role}} — {{fields.org}}"
+            fields:
+              - { label: "Role", name: "role", widget: "string" }
+              - { label: "Company name", name: "org", widget: "string" }
+              - { label: "Location", name: "location", widget: "string", required: false, hint: "e.g. Navi Mumbai" }
+              - { label: "Company website", name: "orgUrl", widget: "string", required: false, hint: "Makes the company name a link. Include https://" }
+              - { label: "Company logo", name: "logo", widget: "image", required: false, choose_url: false, hint: "Square or wide logo; shown beside the role on a light tile. Transparent PNG/SVG/WebP works best." }
+              - { label: "Period", name: "period", widget: "string", hint: "e.g. Jun 2025 — Present" }
+              - { label: "Current role", name: "current", widget: "boolean", default: false, hint: "Shows a pulsing 'Current' badge" }
+              - { label: "Paragraphs", name: "paragraphs", widget: "list", field: { label: "Paragraph", name: "text", widget: "text" }, hint: "One short paragraph per item. Wrap words in **double asterisks** to bold them." }
           - label: "Certifications"
             name: "certifications"
             widget: "list"
@@ -129,7 +170,8 @@ collections:
               - { label: "Name", name: "name", widget: "string" }
               - { label: "Issuer", name: "issuer", widget: "string", required: false }
               - { label: "Date", name: "date", widget: "string", required: false, hint: "e.g. Jun 2024 — free text" }
-              - { label: "Certificate link", name: "url", widget: "string", required: false, hint: "Link to the certificate / verification page" }
+              - { label: "Certificate PDF", name: "pdf", widget: "file", required: false, choose_url: false, hint: "Shown on the site's Certifications page." }
+              - { label: "Verification link", name: "url", widget: "string", required: false, hint: "The issuer's verification URL. Opens in a new tab from a Verify button." }
           - label: "Patents & Publications"
             name: "patents"
             widget: "list"
@@ -160,5 +202,3 @@ collections:
               - { label: "Year", name: "year", widget: "string", required: false }
               - { label: "Title", name: "title", widget: "string" }
               - { label: "Description", name: "description", widget: "text", required: false }
-
-

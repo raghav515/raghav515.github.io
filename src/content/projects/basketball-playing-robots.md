@@ -6,6 +6,7 @@ role: "Team Lead"
 team: "40"
 summary: "Two human-scale robots built to play a 2v2 basketball match, with holonomic drive, encoder–IMU odometry, and a custom PCB architecture."
 tags: ["Holonomic drive", "Odometry (IMU + encoder)", "Flywheel launcher", "Custom PCB", "3D print · CNC · laser"]
+cover: "/uploads/project-placeholder.webp"
 featured: true
 order: 5
 date: 2025-05-01
