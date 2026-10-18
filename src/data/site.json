@@ -108,22 +108,22 @@
       "name": "Modern Robotics: Robot Kinematics",
       "issuer": "Northwestern University",
       "date": "Oct 2026",
-      "url": "",
-      "pdf": ""
+      "url": "https://coursera.org/share/124e0d23563b3c7d2dbfa080e576f0dc",
+      "pdf": "/uploads/kinematics.pdf"
     },
     {
       "name": "Aerial Robotics",
       "issuer": "University of Pennsylvania",
       "date": "Sep 2026",
-      "url": "",
-      "pdf": ""
+      "url": "https://coursera.org/share/e0fd40235f5e9f2ace139afdde64a23b",
+      "pdf": "/uploads/aerial-robotics.pdf"
     },
     {
       "name": "Basics of Embedded Systems and Robotics",
       "issuer": "e-Yantra, IIT Bombay",
       "date": "Jul 2023",
-      "url": "",
-      "pdf": ""
+      "url": "https://www.mooc.e-yantra.org/validate/080794301a5395e10637132829074ebb251858bf",
+      "pdf": "/uploads/mooc_embedded.pdf"
     },
     {
       "name": "Data Structures in C++",
