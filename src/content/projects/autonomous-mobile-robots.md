@@ -13,6 +13,10 @@ tags:
   - Altium
   - CNC · additive · PCB fab
 cover: /uploads/img_5603.jpg
+gallery:
+  - src: /uploads/img_5603.jpg
+  - src: /uploads/img_2448.jpg
+  - src: /uploads/img_8348.jpg
 featured: true
 order: 4
 date: 2024-07-01
