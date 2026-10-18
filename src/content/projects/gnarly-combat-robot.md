@@ -1,12 +1,23 @@
 ---
-title: "GNARLY — 15 kg Combat Robot"
-venue: "Engineer '23 · NITK's first combat program"
-period: "Jul–Oct 2023"
-role: "Co-Founder & Lead"
+title: GNARLY — 15 kg Combat Robot
+venue: Engineer '23 · NITK's first combat program
+period: Jul–Oct 2023
+role: Co-Founder & Lead
 team: "15"
-summary: "Founded NITK's first combat robotics program and built one of India's few 4WD combat robots in the 15 kg class — a vertical bar spinner."
-tags: ["4WD drivetrain", "Vertical bar spinner", "Structural optimization", "Ti / Al / SS selection", "Welding · turning"]
-cover: "/uploads/project-placeholder.webp"
+summary: Founded NITK's first combat robotics program and built one of India's
+  few 4WD combat robots in the 15 kg class — a vertical bar spinner.
+tags:
+  - 4WD drivetrain
+  - Vertical bar spinner
+  - Structural optimization
+  - Ti / Al / SS selection
+  - Welding · turning
+cover: /uploads/robocon-nitk-team-with-robot.png
+gallery:
+  - src: /uploads/dsc_0005.jpg
+  - src: /uploads/robocon-nitk-team-with-robot.png
+  - src: /uploads/pxl_20231228_150408660.jpg
+  - src: /uploads/pxl_20231021_134050066.jpg
 featured: true
 order: 3
 date: 2023-10-01
