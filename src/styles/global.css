@@ -490,6 +490,7 @@
 
   /* ============ PROSE (markdown body) ============ */
   .prose{max-width:68ch;font-size:16.5px;line-height:1.75;color:var(--ink-2)}
+  .prose.prose-full{max-width:none}
   .prose > * + *{margin-top:22px}
   .prose h2{font-family:var(--ff-serif);font-weight:500;color:var(--ink);font-size:clamp(23px,3.2vw,31px);line-height:1.15;letter-spacing:-.01em;margin-top:48px}
   .prose h3{font-family:var(--ff-serif);font-weight:500;color:var(--ink);font-size:clamp(19px,2.4vw,23px);margin-top:38px}
