@@ -13,6 +13,10 @@ tags:
   - Fusion 360
   - TIG welding
 cover: /uploads/img_0142.jpg
+gallery:
+  - src: /uploads/img_0142.jpg
+  - src: /uploads/img_0129.jpg
+  - src: /uploads/pxl_20230412_130526951.portrait.jpg
 featured: true
 order: 2
 date: 2023-06-01
