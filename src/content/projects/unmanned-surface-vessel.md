@@ -1,12 +1,23 @@
 ---
-title: "Unmanned Surface Vessel"
-venue: "NITK Surathkal"
-period: "2024–2025"
-role: "Team Member"
+title: Unmanned Surface Vessel
+venue: NITK Surathkal
+period: 2024–2025
+role: Team Member
 team: "5"
-summary: "A modified fishing canoe with an onboard compute module for autonomous navigation, aimed at search-and-rescue and maritime surveillance."
-tags: ["ROS–Gazebo", "Autonomous navigation", "SolidWorks", "Petrol + electric drive", "RC control"]
-cover: "/uploads/project-placeholder.webp"
+summary: A modified fishing canoe with an onboard compute module for autonomous
+  navigation, aimed at search-and-rescue and maritime surveillance.
+tags:
+  - ROS–Gazebo
+  - Autonomous navigation
+  - SolidWorks
+  - Petrol + electric drive
+  - RC control
+cover: /uploads/img_20240729_120550706_hdr.jpg
+gallery:
+  - src: /uploads/img_20240729_120550706_hdr.jpg
+  - src: /uploads/screenshot-2026-10-18-153634.png
+  - src: /uploads/screenshot-2026-10-18-153506.png
+  - src: /uploads/screenshot-2026-10-18-153356.png
 featured: true
 order: 5
 date: 2025-04-15
