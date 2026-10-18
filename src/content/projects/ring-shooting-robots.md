@@ -1,12 +1,18 @@
 ---
-title: "Ring-Shooting Holonomic Robots"
-venue: "ABU Robocon 2023 · NITK Surathkal"
-period: "2022–2023"
-role: "Team Member"
+title: Ring-Shooting Holonomic Robots
+venue: ABU Robocon 2023 · NITK Surathkal
+period: 2022–2023
+role: Team Member
 team: "12"
-summary: "Two three-wheel holonomic robots for omnidirectional navigation, ring collection, and precision shooting at multiple target heights."
-tags: ["Dual-flywheel launcher", "Custom gearbox", "NodeMCU wireless", "Fusion 360", "TIG welding"]
-cover: "/uploads/project-placeholder.webp"
+summary: Two three-wheel holonomic robots for omnidirectional navigation, ring
+  collection, and precision shooting at multiple target heights.
+tags:
+  - Dual-flywheel launcher
+  - Custom gearbox
+  - NodeMCU wireless
+  - Fusion 360
+  - TIG welding
+cover: /uploads/img_0142.jpg
 featured: true
 order: 2
 date: 2023-06-01
