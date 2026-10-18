@@ -19,16 +19,17 @@ featured: true
 order: 1
 date: 2023-06-15
 ---
-
 ## Overview
 
 Pharma Bot was an autonomous medicine-delivery robot for the e-Yantra Robotics Competition run by IIT Bombay. I led a 4-person team to build a system that perceives, localizes, and navigates a structured environment on its own.
 
+PS: Back then, I didn't have the habit of documenting my work. Hence, photos are missing.
+
 ## What I built
 
-- **OpenCV-based perception** with **QR code and ArUco marker localization**.
-- A **vision-based localization framework** using an overhead camera to estimate the robot's pose in real time.
-- A **digital twin** in **CoppeliaSim**, kept synchronized with the physical robot's state, plus **constrained path planning** and **task scheduling**.
+* **OpenCV-based perception** with **QR code and ArUco marker localization**.
+* A **vision-based localization framework** using an overhead camera to estimate the robot's pose in real time.
+* A **digital twin** in **CoppeliaSim**, kept synchronized with the physical robot's state, plus **constrained path planning** and **task scheduling**.
 
 ## Highlights
 
