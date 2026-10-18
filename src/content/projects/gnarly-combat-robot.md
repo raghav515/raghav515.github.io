@@ -16,7 +16,7 @@ cover: /uploads/robocon-nitk-team-with-robot.png
 gallery:
   - src: /uploads/dsc_0005.jpg
   - src: /uploads/robocon-nitk-team-with-robot.png
-  - src: /uploads/pxl_20231228_150408660.jpg
+  - src: /uploads/gnarly-4wd-night-arena.png
   - src: /uploads/pxl_20231021_134050066.jpg
 featured: true
 order: 3
